@@ -10,6 +10,7 @@
   "sources": [
     "mod/src",
     "mod/include",
+    "mod/data",
     "mod/CMakeLists.txt"
   ],
   "manualZip": [
@@ -17,7 +18,12 @@
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"
   ],
-  "gates": [],
+  "gates": [
+    {
+      "name": "the inimeta matches settings.cpp",
+      "run": "py -3 scripts\\check_inimeta.py"
+    }
+  ],
   "evergreen": [
     "private/nexus/nexus-description.bbcode",
     "README.md"

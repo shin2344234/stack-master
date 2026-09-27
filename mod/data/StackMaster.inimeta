@@ -1,0 +1,56 @@
+// INI Master metadata for StackMaster.ini, embedded in StackMaster.asi as the
+// INIMETA resource (see src/resources.rc). Keep it in step with ReadIni,
+// WriteIni and Clamp in settings.cpp; scripts/check_inimeta.py compares the
+// two and release.json's gates refuse a build when they disagree.
+{
+  "inimeta": 1,
+  "name": "Stack Master",
+  "author": "Seth",
+  "url": "https://www.nexusmods.com/crimsondesert/mods/3548",
+  "ini": "StackMaster.ini",
+  "live": false,
+  "description": "Raises how much of an item one inventory slot holds. Pick a multiplier and every item that already stacks holds that many times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100. No game file is changed; the item table is read once at startup and raised in memory as it is read.",
+  "sections": {
+    "StackMaster": {
+      "label": "Stack Master",
+      "order": 1,
+      "keys": {
+        "Enabled": {
+          "label": "Mod enabled",
+          "type": "bool",
+          "default": "1",
+          "true": "1",
+          "false": "0",
+          "help": "0 turns the whole mod off.",
+          "live": false,
+          "order": 1
+        },
+        "DebugLog": {
+          "label": "Debug log",
+          "type": "bool",
+          "default": "0",
+          "true": "1",
+          "false": "0",
+          "help": "1 writes a line per item raised and keeps every session's log. Send this with a report.",
+          "live": false,
+          "order": 2
+        },
+        "Multiplier": {
+          "label": "Stack multiplier",
+          "type": "int",
+          "min": 1,
+          "max": 1000,
+          "unit": "x",
+          "default": "1",
+          "help": [
+            "How much one slot holds, as a multiple of the game's own limit. 1 leaves every stack alone. 5 turns a stack of 100 into 500 and a stack of 20 into 100, so the game's own differences between item kinds stay.",
+            "Items the game does not stack, like gear and quest items, never start stacking. No stack is taken past 999999, and an item already above that, such as money, is left alone.",
+            "Takes effect the next time the game starts, because the file is read once. Master Looter's Stacks tab can raise it while you play when Private Storage Master is installed too; lowering it always waits for a restart, and so does any change made here on its own."
+          ],
+          "live": false,
+          "order": 3
+        }
+      }
+    }
+  }
+}

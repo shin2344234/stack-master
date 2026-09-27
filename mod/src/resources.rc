@@ -1,0 +1,7 @@
+// Setting labels, types, ranges and help for INI Master, which reads this
+// resource from the plugin's bytes without loading it. The type must be
+// INIMETA. Keep the file in step with ReadIni, WriteIni and Clamp in
+// settings.cpp.
+#include <windows.h>
+
+SM_INIMETA INIMETA "../data/StackMaster.inimeta"

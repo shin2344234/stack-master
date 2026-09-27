@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(StackMaster LANGUAGES CXX C)
+project(StackMaster LANGUAGES CXX C RC)
 
 # Stack Master: an ASI plugin for Crimson Desert that raises the stack size of
 # every stackable item. It edits no game file. The game's item table is read
@@ -42,7 +42,14 @@ add_library(StackMaster SHARED
     src/game/addresses.cpp
     src/stacks/stacks.cpp
     src/api/api.cpp
+    src/resources.rc
 )
+
+# The INIMETA resource (src/resources.rc, data/StackMaster.inimeta) for INI
+# Master, which reads it from the plugin's bytes; rebuild when the metadata
+# changes.
+set_source_files_properties(src/resources.rc PROPERTIES OBJECT_DEPENDS
+    "${CMAKE_SOURCE_DIR}/data/StackMaster.inimeta")
 
 target_include_directories(StackMaster PRIVATE src include ${minhook_SOURCE_DIR}/src/hde)
 target_link_libraries(StackMaster PRIVATE minhook)
