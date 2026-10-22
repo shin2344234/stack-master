@@ -41,8 +41,11 @@ than the game allows, and shrinking a limit under a stack already over it would
 leave it stranded there.
 
 Your save records the stacks you build, so a slot can still hold more than the
-game allows after you set the multiplier back to 1. It keeps what is in it until
-you take some out. Empty the big stacks before turning it down.
+game allows after you set the multiplier back to 1. The plugin never writes to
+your save and never removes an item. What the game does with a slot over its
+normal limit has not been tested yet. It might keep the whole count or cut it
+down. Until that is tested, empty the big stacks before turning it down or
+uninstalling.
 
 ## Other mods
 

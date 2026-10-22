@@ -51,8 +51,10 @@ Turning it back down
 
 Lowering the multiplier always waits for the next start. Your save records the
 stacks you built, so a slot can still hold more than the game allows afterwards.
-It keeps what is in it until you take some out. Empty the big stacks first, and
-the same goes for uninstalling.
+The plugin never writes to your save and never removes an item. What the game does
+with a slot over its normal limit has not been tested yet. It might keep the
+whole count or cut it down. Until that is tested, empty the big stacks first,
+and the same goes for uninstalling.
 
 Other mods
 ----------
