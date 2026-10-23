@@ -1,4 +1,4 @@
-Stack Master 1.0.2 for Crimson Desert 2.02.00, 2.03.00 and 2.03.02
+Stack Master 1.0.3 for Crimson Desert 2.02.00, 2.03.00 and 2.03.02
 ==================================================================
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
@@ -45,6 +45,11 @@ its Stacks tab while you play, and raising it takes hold at once as long as
 Private Storage Master is installed too, since this plugin borrows that mod's
 free-play check to know when a change is safe. On its own, a change from the tab
 waits for the next start.
+
+INI Master (https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
+settings with a label, a range and the default for each, all read out of the
+plugin itself. Multiplier runs from 1 to 1000. Like the ini, it applies at the
+next launch.
 
 Turning it back down
 --------------------

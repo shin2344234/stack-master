@@ -34,6 +34,11 @@ Master](https://www.nexusmods.com/crimsondesert/mods/3521) is installed as well,
 because this mod borrows its free-play check to know when that is safe. On its
 own, and for any smaller number, the change waits for the next start.
 
+[INI Master](https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
+settings with a label, a range and the default for each, all read out of the
+plugin itself. Multiplier runs from 1 to 1000. The plugin reads the ini once at
+startup, so a change made there waits for the next launch.
+
 ## Turning it back down
 
 Lowering the multiplier always waits for the next start. A slot can hold more
@@ -78,11 +83,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.2:
+SHA-256 for 1.0.3:
 
-    10fa618ac83582127f9202f2eaa86a4e9b86327be405e47bf8a37746242f4bbb  StackMaster-1.0.2-DMM.zip
-    9742227f95aea3986806e3a0dd821bbb8c337e4c49428d0b71e5a907418ede61  StackMaster-1.0.2.zip
-    5658b49f9ca8c9331a0d7975afada2fc1f53f9b89d731b12cf9bfaf9d9e79e0c  StackMaster.asi
+    29636f4614bb24114ce16837767a436e531a186af068b0fa340571d1c6285562  StackMaster-1.0.3-DMM.zip
+    a2b82c98d75aee1e912227a579b729cfe1c0a86e4fed0aaf1339f74afd32c5e7  StackMaster-1.0.3.zip
+    cfc9f2fe33eac682cb2d36b67f6621db56c7f9d42e2a4f84e025f6eadac5c12e  StackMaster.asi
 
 ## Discord and Patreon
 
