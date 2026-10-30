@@ -1,7 +1,7 @@
 #pragma once
 
 // Bump it with the release that goes with it, never on its own.
-#define SM_VERSION  "1.0.3"
+#define SM_VERSION  "1.0.4-test1"
 #define SM_NAME     "Stack Master"
 // The game build the plugin was last checked against: exe 1.0.0.3392, the
 // Charting the Unknown DLC build (Steam 26308950). It reordered the ItemInfo

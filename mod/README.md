@@ -1,5 +1,5 @@
-Stack Master 1.0.3 for the Crimson Desert DLC update, exe 1.0.0.3392
-====================================================================
+Stack Master 1.0.4-test1 for the Crimson Desert DLC update, exe 1.0.0.3392
+==========================================================================
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
