@@ -3,7 +3,8 @@
 A Crimson Desert plugin that raises how much of an item one inventory slot
 holds. Pick a multiplier and every item that already stacks holds that many
 times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100.
-Built for the Crimson Desert DLC update, exe 1.0.0.3392.
+Built for the Crimson Desert DLC update, exe 1.0.0.3392 and its 30 October
+update, 1.0.0.3424. Versions before the DLC need Stack Master 1.0.3.
 
 It changes no game file. The game reads its item table once while it starts, and
 the plugin raises each item's own limit as that happens, in memory. That is the
@@ -31,8 +32,9 @@ With [Master Looter](https://www.nexusmods.com/crimsondesert/mods/3402) 1.6.33 o
 later you can change the multiplier from its Stacks tab in game. Raising it takes
 hold straight away if [Private Storage
 Master](https://www.nexusmods.com/crimsondesert/mods/3521) is installed as well,
-because this mod borrows its free-play check to know when that is safe. On its
-own, and for any smaller number, the change waits for the next start.
+because this mod borrows its free-play check to know when that is safe. On the
+DLC update that needs Private Storage Master 1.1.8 or later. On its own, and for
+any smaller number, the change waits for the next start.
 
 [INI Master](https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
 settings with a label, a range and the default for each, all read out of the
@@ -83,11 +85,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.3:
+SHA-256 for 1.0.4:
 
-    29636f4614bb24114ce16837767a436e531a186af068b0fa340571d1c6285562  StackMaster-1.0.3-DMM.zip
-    a2b82c98d75aee1e912227a579b729cfe1c0a86e4fed0aaf1339f74afd32c5e7  StackMaster-1.0.3.zip
-    cfc9f2fe33eac682cb2d36b67f6621db56c7f9d42e2a4f84e025f6eadac5c12e  StackMaster.asi
+    90171107f7ac410c877f68b5450b14a6f831ad8c0bad450861164611bca7f886  StackMaster-1.0.4-DMM.zip
+    0d60a028eef2229a44c17352094352c7c6dbbcb217f28e41103f11c494a4387e  StackMaster-1.0.4.zip
+    ece8e2eb63cd41b726fd14b4f5abc57d23add4dae35e2ebbeb8dc2d2058e250a  StackMaster.asi
 
 ## Discord and Patreon
 

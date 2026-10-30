@@ -1,5 +1,5 @@
-Stack Master 1.0.3 for the Crimson Desert DLC update, exe 1.0.0.3392
-====================================================================
+Stack Master 1.0.4 for the Crimson Desert DLC update, exe 1.0.0.3392 and 1.0.0.3424
+===================================================================================
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
@@ -43,8 +43,9 @@ Editing the ini takes effect the next time the game starts, because the file is
 read once. With Master Looter 1.6.33 or later you can change the multiplier from
 its Stacks tab while you play, and raising it takes hold at once as long as
 Private Storage Master is installed too, since this plugin borrows that mod's
-free-play check to know when a change is safe. On its own, a change from the tab
-waits for the next start.
+free-play check to know when a change is safe. On the DLC update that takes
+Private Storage Master 1.1.8 or later. On its own, a change from the tab waits
+for the next start.
 
 INI Master (https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
 settings with a label, a range and the default for each, all read out of the
