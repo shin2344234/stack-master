@@ -46,29 +46,30 @@ namespace sm::addr
 
     bool ResolveStacks(Stacks& s)
     {
-        // The read of ItemInfo's _maxStackCount, eight bytes into record+0x18.
+        // The read of ItemInfo's _maxStackCount, eight bytes into record+0x10.
         // TradeMarketItemInfo's reader has the same eight-byte read at the same
         // offset, so the failure branch decides: every field read is followed by
         // a test and a jump to a block that loads the field's own error string,
         // and the string names both the class and the field. That makes this one
-        // hit on 1.0.0.2850 and 1.0.0.2944 alike, and a build that reorders the
-        // record gets no match rather than a wrong offset. The research is in
-        // Private Storage Master's R9-stack-size notes.
+        // hit on 1.0.0.3392, and a build that reorders the record gets no match
+        // rather than a wrong offset. Up to 1.0.0.2976 the field sat at +0x18 and
+        // the stream's read was slot +0x8; the DLC build moved both. The research
+        // is in Private Storage Master's R9-stack-size notes and the 3392 catalog.
         //
+        //   lea  rdx, [rsi + 0x10]   ; _maxStackCount
         //   mov  rax, [rdi]          ; the stream
-        //   lea  rdx, [rsi + 0x18]   ; _maxStackCount
         //   mov  r8d, 8
         //   mov  rcx, rdi
-        //   call [rax + 8]           ; stream->ReadBytes
-        //   test al, al / jne        ; then lea rax, [rip + "ItemInfo... _maxStackCount..."]
+        //   call [rax + 0x28]        ; stream->ReadBytes
+        //   test al, al / jne        ; then xor ebx, ebx; lea rax, [rip + "ItemInfo... _maxStackCount..."]
         const uintptr_t field = Unique("ItemInfo _maxStackCount read",
-            "48 8B 07 48 8D 56 18 41 B8 08 00 00 00 48 8B CF FF 50 08 84 C0 75 ?? 48 8D 05 ?? ?? ?? ??");
+            "48 8D 56 10 48 8B 07 41 B8 08 00 00 00 48 8B CF FF 50 28 84 C0 75 ?? 33 DB 48 8D 05 ?? ?? ?? ??");
         if (!field) return false;
         // The message is Korean apart from the two names in it, so it is read as
         // bytes and searched for those. A printable-ASCII read would refuse it at
         // the first byte past ASCII.
         char err[96] = {};
-        const bool named = mem::ReadBytes(mem::RipAt(field + 23, 7), err, sizeof err - 1) && strncmp(err, "ItemInfo", 8) == 0 &&
+        const bool named = mem::ReadBytes(mem::RipAt(field + 25, 7), err, sizeof err - 1) && strncmp(err, "ItemInfo", 8) == 0 &&
                            strstr(err, "_maxStackCount") != nullptr;
         if (!named)
         {
@@ -81,10 +82,11 @@ namespace sm::addr
             LOG_ERR("[addr] ItemInfo reader: no function entry near +%llX", R(field));
             return false;
         }
-        // (stream in rcx, record in rdx, kept in rsi), then _key as four bytes.
-        if (!mem::MatchAt(entry, "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC ?? 48 8B 01 48 8B F2"))
+        // (stream in rcx kept in rdi, record in rdx kept in rsi), then _stringKey
+        // and _key as four bytes into record+0x08.
+        if (!mem::MatchAt(entry, "48 8B C4 48 89 58 08 48 89 68 20 56 57 41 56 48 83 EC 60 48 8B F2 48 8B F9"))
         {
-            LOG_ERR("[addr] ItemInfo reader at +%llX does not start the way it did on 2.02 and 2.03", R(entry));
+            LOG_ERR("[addr] ItemInfo reader at +%llX does not start the way it did on 1.0.0.3392", R(entry));
             return false;
         }
         s.itemInfoRead = entry;

@@ -16,9 +16,11 @@ namespace sm::stacks
     {
         using Fn4 = uintptr_t(__fastcall*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
-        // ItemInfo, from Private Storage Master's R9 notes.
-        constexpr unsigned kMaxStackCount = 0x18;   // eight bytes
-        constexpr unsigned kKey = 0x00;             // four bytes, the item number
+        // ItemInfo on 1.0.0.3392, from the DLC catalog. Up to 1.0.0.2976 these
+        // were +0x18 and +0x00; the DLC build put _stringKey first and the small
+        // fields after it, and +0x18 now holds one-byte flags.
+        constexpr unsigned kMaxStackCount = 0x10;   // eight bytes
+        constexpr unsigned kKey = 0x08;             // four bytes, the item number
         // No stack is taken past this. Fat Stacks' largest option is 999999 and
         // the game carries it in this same field, so it is a number the game is
         // known to cope with. A stock limit already at or past it is left alone:
