@@ -41,7 +41,7 @@
           "min": 1,
           "max": 1000,
           "unit": "x",
-          "default": "1",
+          "default": "5",
           "help": [
             "How much one slot holds, as a multiple of the game's own limit. 1 leaves every stack alone. 5 turns a stack of 100 into 500 and a stack of 20 into 100, so the game's own differences between item kinds stay.",
             "Items the game does not stack, like gear and quest items, never start stacking. No stack is taken past 999999, and an item already above that, such as money, is left alone.",

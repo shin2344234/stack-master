@@ -23,7 +23,13 @@ namespace sm::Settings
         bool debugLog = false;
         // How much of one item a slot holds, as a multiple of the game's own
         // limit for that item. 1 changes nothing and installs no hook.
-        int  multiplier = 1;
+        //
+        // Five from the first run. It was 1, so a fresh install wrote an ini
+        // that changed nothing and the mod looked broken until the player
+        // found the setting. okolkye94 reported it on the Nexus posts tab,
+        // and zerorushhour2 answered that setting 5 made it work. Five is the
+        // number every example in the ini and the READMEs already uses.
+        int  multiplier = 5;
     };
 
     void Load();               // once, at startup

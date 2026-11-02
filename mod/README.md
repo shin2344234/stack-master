@@ -16,8 +16,9 @@ Install
 1. Ultimate ASI Loader must be in bin64 next to CrimsonDesert.exe. If it is
    named version.dll and nothing loads, rename it to winmm.dll.
 2. With the game closed, copy StackMaster.asi into bin64.
-3. Start the game once. StackMaster.ini appears beside the plugin.
-4. Set the multiplier in the ini and start the game again.
+3. Start the game. StackMaster.ini appears beside the plugin with
+   Multiplier=5, so stacks are five times the game's own straight away.
+4. To pick another multiplier, change it in the ini and start the game again.
 
 To uninstall, delete the StackMaster files from bin64. Read "Turning it back
 down" first.

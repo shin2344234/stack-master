@@ -19,11 +19,12 @@ and Cannonballs keep the game's own stack size.
 ## Install
 
 Copy `StackMaster.asi` into `Crimson Desert\bin64`, beside the ASI loader you
-already use. On first run it writes `StackMaster.ini` next to itself.
-
-Then set the multiplier in `StackMaster.ini` and restart the game:
+already use. On first run it writes `StackMaster.ini` next to itself with
 
     Multiplier=5
+
+so every stack holds five times the game's own from the first launch. Change
+the number and restart the game to pick another.
 
 `Enabled=0` turns the mod off. `DebugLog=1` writes a line for the first ten
 items raised and keeps the last five sessions' logs, which is what to send with a
