@@ -87,11 +87,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.4:
+SHA-256 for 1.0.5:
 
-    90171107f7ac410c877f68b5450b14a6f831ad8c0bad450861164611bca7f886  StackMaster-1.0.4-DMM.zip
-    0d60a028eef2229a44c17352094352c7c6dbbcb217f28e41103f11c494a4387e  StackMaster-1.0.4.zip
-    ece8e2eb63cd41b726fd14b4f5abc57d23add4dae35e2ebbeb8dc2d2058e250a  StackMaster.asi
+    0cde82539100016fd27913eb9d5b87a2d9b8a8ff5bc5a720d979dd8d84f5f066  StackMaster-1.0.5-DMM.zip
+    871a2e650ff286230ec5d7d37c92676753fb967f155b32dc1b581ca7f65e7e63  StackMaster-1.0.5.zip
+    47829a0adba9414dc1611076c6962fc8761fd5eea70fdfb21fb9acab51bbeb4c  StackMaster.asi
 
 ## Discord and Patreon
 
