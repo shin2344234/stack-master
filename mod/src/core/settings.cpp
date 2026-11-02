@@ -35,7 +35,7 @@ namespace sm::Settings
                     "[StackMaster]\n\n"
                     "; 0 turns the whole mod off.\n"
                     "Enabled=%d\n\n"
-                    "; 1 writes a line per item raised and keeps every session's log.\n"
+                    "; 1 writes a line per item raised and keeps the last five sessions' logs.\n"
                     "DebugLog=%d\n\n"
                     "; How much of one item a single slot holds, as a multiple of the game's own\n"
                     "; limit. 1 leaves every stack alone. 5 turns a stack of 100 into 500 and a\n"

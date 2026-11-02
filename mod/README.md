@@ -32,7 +32,7 @@ StackMaster.ini, written on the first run with every setting explained.
                       installs no hook at all.
     Enabled=0         turns the whole mod off.
     DebugLog=1        writes a line for the first ten items raised and keeps
-                      every session's log. Send this with a report.
+                      the last five sessions' logs. Send this with a report.
 
 Items the game does not stack, such as gear and quest items, never start
 stacking. No stack goes past 999999, and an item the game already lets you hold

@@ -31,7 +31,7 @@
           "default": "0",
           "true": "1",
           "false": "0",
-          "help": "1 writes a line per item raised and keeps every session's log. Send this with a report.",
+          "help": "1 writes a line per item raised and keeps the last five sessions' logs. Send this with a report.",
           "live": false,
           "order": 2
         },

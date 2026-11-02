@@ -26,7 +26,8 @@ Then set the multiplier in `StackMaster.ini` and restart the game:
     Multiplier=5
 
 `Enabled=0` turns the mod off. `DebugLog=1` writes a line for the first ten
-items raised and keeps every session's log, which is what to send with a report.
+items raised and keeps the last five sessions' logs, which is what to send with a
+report.
 
 With [Master Looter](https://www.nexusmods.com/crimsondesert/mods/3402) 1.6.33 or
 later you can change the multiplier from its Stacks tab in game. Raising it takes
