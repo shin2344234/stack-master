@@ -12,7 +12,7 @@ namespace sm::stacks
     enum Reason
     {
         kApplying = 0,
-        kOff = 1,          // Multiplier is 1, or Enabled=0
+        kOff = 1,          // Multiplier is 1 and StackSize is 0, or Enabled=0
         kOtherMod = 2,     // unused here: this mod is the one that takes precedence
         kNoAnchor = 3,     // the item table reader was not found
         kHookFailed = 4,
@@ -30,7 +30,8 @@ namespace sm::stacks
     // where the game builds everything from the raised data itself.
     //
     // False when it cannot be done now, with the reason in `why`. The setting is
-    // saved by whoever called this either way.
+    // saved by whoever called this either way. Always false while StackSize is
+    // set, since then the multiplier is not used.
     bool RaiseNow(int multiplier, char* why, size_t whyLen);
     // Whether a raise could apply this session at all. It needs the hook and a
     // way to tell that the player is in free play with no storage screen open,
@@ -38,12 +39,16 @@ namespace sm::stacks
     // its own it has no view of the game's screens, so it answers false and a new
     // multiplier waits for the next launch.
     bool CanRaiseNow();
+    // StackSize when it is what sets the limits this launch, 0 when the
+    // multiplier does or nothing is changed.
+    int StackSizeInForce();
 
     struct Report
     {
         bool hooked = false;
         Reason reason = kOff;
         int multiplier = 1;          // in force this launch; 1 when nothing is changed
+        int stackSize = 0;           // StackSize in force this launch, 0 when the multiplier is
         int patched = 0;
         int64_t biggest = 0;
         int unstackable = 0;

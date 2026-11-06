@@ -2,8 +2,9 @@
 #include <cstddef>
 #include <functional>
 
-// StackMaster.ini. Three settings and nothing else: whether the mod runs at all,
-// whether the log is verbose, and how much deeper stacks go.
+// StackMaster.ini. Four settings and nothing else: whether the mod runs at all,
+// whether the log is verbose, and how much deeper stacks go, as a multiplier or
+// as one size for everything.
 //
 // Settings can change while the game runs (Master Looter's Stacks tab through
 // StackApplyMultiplier). Get() hands out the current copy; a change publishes a
@@ -16,6 +17,10 @@ namespace sm::Settings
     // stacks/stacks stops the result running away; this stops a typo like
     // 100000 from turning every small stack into a huge one.
     inline constexpr int kMaxMultiplier = 1000;
+    // The largest StackSize accepted. It is the per-item ceiling in
+    // stacks/stacks and STACK_CEILING in stack_api.h, and a static_assert in
+    // api.cpp holds the three together.
+    inline constexpr int kMaxStackSize = 999999;
 
     struct Values
     {
@@ -30,6 +35,13 @@ namespace sm::Settings
         // and zerorushhour2 answered that setting 5 made it work. Five is the
         // number every example in the ini and the READMEs already uses.
         int  multiplier = 5;
+        // One size for every item that already stacks, in place of the
+        // multiplier. 0 is off and leaves the multiplier in charge. Set, it
+        // wins: an item whose own limit is under it is raised to it, one at or
+        // over it keeps its own, and Multiplier is not used at all. willief23
+        // asked on the Nexus posts tab which multiplier gives a stack of 9999,
+        // and no single one does, because the game's own limits differ by item.
+        int  stackSize = 0;
     };
 
     void Load();               // once, at startup

@@ -50,6 +50,10 @@ namespace sm::stacks
         addr::Stacks g_addr;
         void* oRead = nullptr;
         std::atomic<int> g_multiplier{1};
+        // StackSize from the ini, 0 when the multiplier decides instead. Read at
+        // the start of a launch and never changed after, since nothing but the
+        // ini sets it.
+        std::atomic<int> g_stackSize{0};
         std::atomic<bool> g_stop{false};
         std::atomic<bool> g_patching{false};
         std::atomic<bool> g_hooked{false};
@@ -58,6 +62,9 @@ namespace sm::stacks
         std::atomic<int64_t> g_biggest{0};
         std::atomic<int> g_unstackable{0};
         std::atomic<int> g_huge{0};
+        // Records whose own limit was already at or over what the mod would
+        // write, which with StackSize is every item the game stacks deeper.
+        std::atomic<int> g_kept{0};
         std::atomic<int> g_logged{0};
 
         // This mod hooks one function and reads no game state of its own, so it has
@@ -98,9 +105,12 @@ namespace sm::stacks
             if (!mem::Read32(rec + kKey, &key)) return;
             for (const uint32_t k : kKeepStock)
                 if (key == k) return;
-            int64_t want = stock * g_multiplier.load();
+            // StackSize wins when set. It only ever raises: a stock limit at or
+            // over it fails the test below and the record keeps the game's own.
+            const int size = g_stackSize.load();
+            int64_t want = size > 1 ? static_cast<int64_t>(size) : stock * g_multiplier.load();
             if (want > kCeiling) want = kCeiling;
-            if (want <= stock) return;
+            if (want <= stock) { ++g_kept; return; }
             __try
             {
                 *reinterpret_cast<int64_t*>(rec + kMaxStackCount) = want;
@@ -143,13 +153,15 @@ namespace sm::stacks
     void Start()
     {
         const int mult = Settings::Startup().multiplier;
-        if (mult <= 1)
+        const int size = Settings::Startup().stackSize;
+        if (mult <= 1 && size <= 1)
         {
             g_reason = kOff;
-            LOG_NOTE("[stacks] Multiplier=1, so stacks hold what the game gives them");
+            LOG_NOTE("[stacks] Multiplier=1 and StackSize=0, so stacks hold what the game gives them");
             return;
         }
         g_multiplier = mult;
+        g_stackSize = size > 1 ? size : 0;
         // Early in a launch the game has not finished unpacking its code and no
         // pattern matches yet. The item table is read later than that, so waiting
         // here still lands the hook before it.
@@ -176,16 +188,25 @@ namespace sm::stacks
         g_patching = true;
         g_hooked = true;
         g_reason = kApplying;
-        LOG_NOTE("[stacks] Multiplier=%d: every item that already stacks holds %d times as much, up to %lld", mult, mult,
-                 static_cast<long long>(kCeiling));
+        if (g_stackSize.load())
+            LOG_NOTE("[stacks] StackSize=%d: every item that already stacks holds at least %d, and Multiplier=%d is not used", size, size,
+                     mult);
+        else
+            LOG_NOTE("[stacks] Multiplier=%d: every item that already stacks holds %d times as much, up to %lld", mult, mult,
+                     static_cast<long long>(kCeiling));
     }
 
     void Flush()
     {
         const int mult = g_multiplier.load();
-        if (mult <= 1 || !g_hooked.load()) return;
+        const int size = g_stackSize.load();
+        if (!g_hooked.load()) return;
         const int n = g_patched.load();
-        if (n)
+        if (n && size)
+            LOG_NOTE("[stacks] %d items stack to %d now; %d the game already stacks to %d or more keep their own limit, and %d it "
+                     "stacks to %lld or more and %d it does not stack were left alone",
+                     n, size, g_kept.load(), size, g_huge.load(), static_cast<long long>(kCeiling), g_unstackable.load());
+        else if (n)
             LOG_NOTE("[stacks] %d items stack x%d now, the biggest holding %lld; %d items the game does not stack were left alone", n, mult,
                      static_cast<long long>(g_biggest.load()), g_unstackable.load());
         else
@@ -195,13 +216,19 @@ namespace sm::stacks
         }
     }
 
-    bool CanRaiseNow() { return g_hooked.load() && g_reason.load() == kApplying && FreePlayAvailable(); }
+    // Never while StackSize is set: it decides every limit, so a bigger
+    // multiplier has nothing to raise.
+    bool CanRaiseNow() { return g_hooked.load() && g_reason.load() == kApplying && !g_stackSize.load() && FreePlayAvailable(); }
+
+    int StackSizeInForce() { return g_hooked.load() && g_reason.load() == kApplying ? g_stackSize.load() : 0; }
 
     bool RaiseNow(int multiplier, char* why, size_t whyLen)
     {
         const auto no = [&](const char* text) { if (why && whyLen) snprintf(why, whyLen, "%s", text); return false; };
         if (!g_hooked.load() || g_reason.load() != kApplying)
             return no("stacks are not being changed at all this session");
+        if (g_stackSize.load())
+            return no("StackSize is set in StackMaster.ini, and it decides every stack while it is, so the multiplier does nothing");
         // Said before the multiplier is looked at, because with no way to test for
         // free play every change waits for the next start whichever way it goes.
         // Saying stacks are not being changed here would be wrong: they are.
@@ -259,6 +286,7 @@ namespace sm::stacks
         r.hooked = g_hooked.load();
         r.reason = static_cast<Reason>(g_reason.load());
         r.multiplier = r.reason == kApplying ? g_multiplier.load() : 1;
+        r.stackSize = StackSizeInForce();
         r.patched = g_patched.load();
         r.biggest = g_biggest.load();
         r.unstackable = g_unstackable.load();

@@ -3,6 +3,7 @@
 A Crimson Desert plugin that raises how much of an item one inventory slot
 holds. Pick a multiplier and every item that already stacks holds that many
 times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100.
+Or set one stack size, such as 9999, for everything that stacks.
 Built for the Crimson Desert DLC update, exe 1.0.0.3392 and its 30 October
 update, 1.0.0.3424. Versions before the DLC need Stack Master 1.0.3.
 
@@ -26,9 +27,10 @@ already use. On first run it writes `StackMaster.ini` next to itself with
 so every stack holds five times the game's own from the first launch. Change
 the number and restart the game to pick another.
 
-`Enabled=0` turns the mod off. `DebugLog=1` writes a line for the first ten
-items raised and keeps the last five sessions' logs, which is what to send with a
-report.
+`StackSize=9999` gives every item that stacks a limit of 9999 in place of the
+multiplier. It is 0, off, by default. `Enabled=0` turns the mod off.
+`DebugLog=1` writes a line for the first ten items raised and keeps the last
+five sessions' logs, which is what to send with a report.
 
 With [Master Looter](https://www.nexusmods.com/crimsondesert/mods/3402) 1.6.33 or
 later you can change the multiplier from its Stacks tab in game. Raising it takes
@@ -38,14 +40,34 @@ because this mod borrows its free-play check to know when that is safe. On the
 DLC update that needs Private Storage Master 1.1.8 or later. On its own, and for
 any smaller number, the change waits for the next start.
 
-[INI Master](https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
+[INI Master](https://www.nexusmods.com/crimsondesert/mods/3578) can edit the four
 settings with a label, a range and the default for each, all read out of the
-plugin itself. Multiplier runs from 1 to 1000. The plugin reads the ini once at
-startup, so a change made there waits for the next launch.
+plugin itself. Multiplier runs from 1 to 1000 and StackSize from 0 to 999999.
+The plugin reads the ini once at startup, so a change made there waits for the
+next launch.
+
+## One stack size for everything
+
+A multiplier scales each item's own limit, and the game's limits differ by item,
+so there is no multiplier that makes every stack 9999. An item that stacks to
+100 would need 100 and one that stacks to 20 would need 500. `StackSize` sets
+the number directly.
+
+It only ever raises. An item the game already stacks higher than `StackSize`
+keeps its own limit, items that do not stack stay that way, the replenishing
+ammo keeps the game's size, and 999999 is the most it accepts. When it is set
+it wins over `Multiplier`, which is then not used at all, and Master Looter's
+Stacks tab refuses a multiplier change with the reason. `StackSize=0` hands
+control back to the multiplier. An ini from 1.0.5 or older has no `StackSize`
+line, so add it under `[StackMaster]`.
+
+For callers of the interface, `StackStatus::stackSize` is the size in force, 0
+when the multiplier decides.
 
 ## Turning it back down
 
-Lowering the multiplier always waits for the next start. A slot can hold more
+Lowering the multiplier always waits for the next start, and so does lowering
+`StackSize`. A slot can hold more
 than the game allows, and shrinking a limit under a stack already over it would
 leave it stranded there.
 

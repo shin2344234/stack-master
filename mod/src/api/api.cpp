@@ -29,6 +29,7 @@ static_assert(STACK_STANDDOWN_NONE == sm::stacks::kApplying && STACK_STANDDOWN_O
               "the STACK_STANDDOWN_ codes and stacks::Reason must match");
 static_assert(STACK_MAX_MULTIPLIER == sm::Settings::kMaxMultiplier,
               "STACK_MAX_MULTIPLIER and Settings::kMaxMultiplier must match");
+static_assert(STACK_CEILING == sm::Settings::kMaxStackSize, "STACK_CEILING and Settings::kMaxStackSize must match");
 
 STACK_EXPORT int StackApiVersion(void) { return STACK_API_VERSION; }
 
@@ -63,6 +64,7 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     fill->maxMultiplier = STACK_MAX_MULTIPLIER;
     fill->liveRaise = sm::stacks::CanRaiseNow();
     fill->biggest = r.biggest;
+    fill->stackSize = r.stackSize;
     memcpy(out, fill, want);
     return 1;
 }
@@ -73,7 +75,16 @@ STACK_EXPORT int StackStandDownText(int reason, char* out, int outLen)
     switch (reason)
     {
     case STACK_STANDDOWN_NONE:
-        snprintf(out, static_cast<size_t>(outLen), "%s is setting the stack sizes.", SM_NAME);
+        // Master Looter's Stacks tab shows this line, and a tab built before
+        // stackSize was added has no other way to learn that the multiplier it
+        // offers is not the one in charge.
+        if (const int size = sm::stacks::StackSizeInForce())
+            snprintf(out, static_cast<size_t>(outLen),
+                     "%s is setting every stack to at least %d, from StackSize in StackMaster.ini. The multiplier is not used while "
+                     "StackSize is set.",
+                     SM_NAME, size);
+        else
+            snprintf(out, static_cast<size_t>(outLen), "%s is setting the stack sizes.", SM_NAME);
         return 1;
     case STACK_STANDDOWN_OFF:
         snprintf(out, static_cast<size_t>(outLen), sm::Settings::Get().enabled
@@ -108,6 +119,15 @@ STACK_EXPORT int StackApplyMultiplier(int multiplier, char* why, int whyLen)
     if (multiplier < 1 || multiplier > STACK_MAX_MULTIPLIER)
     {
         if (why && whyLen > 0) snprintf(why, static_cast<size_t>(whyLen), "the multiplier has to be between 1 and %d", STACK_MAX_MULTIPLIER);
+        return 0;
+    }
+    // Saving it would change nothing, now or after a restart, and the tab would
+    // look as if it had worked. Refused with the reason, which the tab shows.
+    if (const int size = sm::Settings::Get().stackSize)
+    {
+        if (why && whyLen > 0)
+            snprintf(why, static_cast<size_t>(whyLen),
+                     "StackSize=%d in StackMaster.ini sets every stack, so the multiplier does nothing. Set StackSize=0 there to use it.", size);
         return 0;
     }
     const auto change = [multiplier](sm::Settings::Values& v) { v.multiplier = multiplier; };

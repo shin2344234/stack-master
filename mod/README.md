@@ -3,7 +3,8 @@ Stack Master 1.0.4 for the Crimson Desert DLC update, exe 1.0.0.3392 and 1.0.0.3
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
-100 becomes 500 and a stack of 20 becomes 100.
+100 becomes 500 and a stack of 20 becomes 100. Or set StackSize, and every
+item that stacks holds that one number instead.
 
 No game file is changed. The game reads its item table while it starts, and the
 plugin raises each item's own limit as that happens, in memory. That is the
@@ -18,7 +19,8 @@ Install
 2. With the game closed, copy StackMaster.asi into bin64.
 3. Start the game. StackMaster.ini appears beside the plugin with
    Multiplier=5, so stacks are five times the game's own straight away.
-4. To pick another multiplier, change it in the ini and start the game again.
+4. To pick another multiplier, or one stack size for everything, change it in
+   the ini and start the game again.
 
 To uninstall, delete the StackMaster files from bin64. Read "Turning it back
 down" first.
@@ -32,6 +34,8 @@ StackMaster.ini, written on the first run with every setting explained.
                       limit for that item. 1 changes nothing and the plugin
                       installs no hook at all.
     Enabled=0         turns the whole mod off.
+    StackSize=9999    one stack size for every item that stacks, in place of
+                      the multiplier. 0, the default, is off.
     DebugLog=1        writes a line for the first ten items raised and keeps
                       the last five sessions' logs. Send this with a report.
 
@@ -48,15 +52,34 @@ free-play check to know when a change is safe. On the DLC update that takes
 Private Storage Master 1.1.8 or later. On its own, a change from the tab waits
 for the next start.
 
-INI Master (https://www.nexusmods.com/crimsondesert/mods/3578) can edit the three
+INI Master (https://www.nexusmods.com/crimsondesert/mods/3578) can edit the four
 settings with a label, a range and the default for each, all read out of the
-plugin itself. Multiplier runs from 1 to 1000. Like the ini, it applies at the
-next launch.
+plugin itself. Multiplier runs from 1 to 1000 and StackSize from 0 to 999999.
+Like the ini, it applies at the next launch.
+
+One size for everything
+-----------------------
+
+The multiplier works from each item's own limit, so no single multiplier gives
+every item the same stack. At 100 an item that stacks to 100 holds 10000 and one
+that stacks to 20 holds 2000. StackSize is for wanting one number everywhere.
+At StackSize=9999 every item that stacks holds 9999.
+
+StackSize never lowers a limit. An item the game already stacks to more than
+StackSize keeps its own limit. Gear and quest items still never stack, the
+three replenishing ammo items keep the game's size, and the largest StackSize
+accepted is 999999.
+
+When StackSize is set, it wins and Multiplier is not used at all. Master
+Looter's Stacks tab refuses to change the multiplier then and shows the reason.
+Set StackSize=0 to go back to the multiplier. An ini written by 1.0.5 or older
+has no StackSize line, so add one under [StackMaster].
 
 Turning it back down
 --------------------
 
-Lowering the multiplier always waits for the next start. Your save records the
+Lowering the multiplier always waits for the next start, and so does lowering
+StackSize or setting it back to 0. Your save records the
 stacks you built, so a slot can still hold more than the game allows afterwards.
 The plugin never writes to your save and never removes an item. What the game does
 with a slot over its normal limit has not been tested yet. It might keep the

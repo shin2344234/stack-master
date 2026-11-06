@@ -9,7 +9,7 @@
   "url": "https://www.nexusmods.com/crimsondesert/mods/3548",
   "ini": "StackMaster.ini",
   "live": false,
-  "description": "Raises how much of an item one inventory slot holds. Pick a multiplier and every item that already stacks holds that many times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100. No game file is changed; the item table is read once at startup and raised in memory as it is read.",
+  "description": "Raises how much of an item one inventory slot holds. Pick a multiplier and every item that already stacks holds that many times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100. Or set one stack size, such as 9999, for everything that stacks. No game file is changed; the item table is read once at startup and raised in memory as it is read.",
   "sections": {
     "StackMaster": {
       "label": "Stack Master",
@@ -45,10 +45,25 @@
           "help": [
             "How much one slot holds, as a multiple of the game's own limit. 1 leaves every stack alone. 5 turns a stack of 100 into 500 and a stack of 20 into 100, so the game's own differences between item kinds stay.",
             "Items the game does not stack, like gear and quest items, never start stacking. No stack is taken past 999999, and an item already above that, such as money, is left alone.",
-            "Takes effect the next time the game starts, because the file is read once. Master Looter's Stacks tab can raise it while you play when Private Storage Master is installed too; lowering it always waits for a restart, and so does any change made here on its own."
+            "Takes effect the next time the game starts, because the file is read once. Master Looter's Stacks tab can raise it while you play when Private Storage Master is installed too; lowering it always waits for a restart, and so does any change made here on its own.",
+            "Not used while Stack size is set."
           ],
           "live": false,
           "order": 3
+        },
+        "StackSize": {
+          "label": "Stack size",
+          "type": "int",
+          "min": 0,
+          "max": 999999,
+          "default": "0",
+          "help": [
+            "One stack size for everything that stacks, in place of the multiplier. 0 is off and leaves the multiplier in charge. At 9999, every stacking item holds 9999 whatever the game's own limit for it is.",
+            "An item the game already stacks higher keeps its own limit, so nothing is lowered. Gear and quest items still never stack, Replenishing Arrows, Bullets and Cannonballs keep the game's size, and the largest allowed is 999999.",
+            "While it is set the multiplier is not used, and Master Looter's Stacks tab cannot change it. Takes effect the next time the game starts."
+          ],
+          "live": false,
+          "order": 4
         }
       }
     }

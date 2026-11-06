@@ -99,7 +99,7 @@ def parse_clamp(cpp):
 def resolve_constant(name, h):
     if re.match(r"^-?\d+$", name):
         return int(name)
-    m = re.search(r"kMaxMultiplier\s*=\s*(\d+)", h) if name == "kMaxMultiplier" else None
+    m = re.search(r"\b%s\s*=\s*(\d+)" % re.escape(name), h) if re.match(r"^k\w+$", name) else None
     if m:
         return int(m.group(1))
     raise ValueError("cannot resolve clamp constant %s" % name)

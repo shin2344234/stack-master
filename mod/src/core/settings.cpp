@@ -54,8 +54,18 @@ namespace sm::Settings
                     "; Do not run a stack-size data mod such as Fat Stacks as well. With\n"
                     "; Private Storage Master installed this mod is the one that applies, and\n"
                     "; its own StackMultiplier is ignored.\n"
-                    "Multiplier=%d\n",
-                    SM_NAME, SM_VERSION, SM_GAME, v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier);
+                    "; StackSize below replaces this whenever it is set.\n"
+                    "Multiplier=%d\n\n"
+                    "; One stack size for everything that stacks, in place of the multiplier.\n"
+                    "; 0 is off and leaves Multiplier in charge. 9999 lets every stacking item\n"
+                    "; hold 9999, whatever the game's own limit for it is. An item the game\n"
+                    "; already stacks higher keeps its own limit, so nothing is ever lowered.\n"
+                    "; While it is set, Multiplier is not used, and Master Looter's Stacks tab\n"
+                    "; cannot change it. Gear and quest items still never stack, Replenishing\n"
+                    "; Arrows, Bullets and Cannonballs keep the game's size, and the largest\n"
+                    "; allowed is 999999. It takes effect the next time the game starts.\n"
+                    "StackSize=%d\n",
+                    SM_NAME, SM_VERSION, SM_GAME, v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier, v.stackSize);
             fclose(f);
             return true;
         }
@@ -82,6 +92,7 @@ namespace sm::Settings
                 // The name the setting has inside Private Storage Master, so a
                 // player who copies the line across gets what they meant.
                 else if (_stricmp(key, "StackMultiplier") == 0) out.multiplier = atoi(val);
+                else if (_stricmp(key, "StackSize") == 0) out.stackSize = atoi(val);
                 else LOG_NOTE("[settings] %s is not a setting this version knows; ignored", key);
             }
             fclose(f);
@@ -91,6 +102,12 @@ namespace sm::Settings
         {
             if (v.multiplier < 1) v.multiplier = 1;
             if (v.multiplier > kMaxMultiplier) v.multiplier = kMaxMultiplier;
+            if (v.stackSize < 0) v.stackSize = 0;
+            if (v.stackSize > kMaxStackSize) v.stackSize = kMaxStackSize;
+            // A size of 1 would raise nothing, since every item it applies to
+            // already stacks to 2 or more, yet it would switch the multiplier
+            // off. Read it as the off it amounts to.
+            if (v.stackSize == 1) v.stackSize = 0;
         }
 
         // Published copies are never freed: a reader may still hold the old one,
@@ -127,7 +144,8 @@ namespace sm::Settings
         g_startup = new Values(v);
         Publish(v);
         if (!have) LOG_NOTE("[settings] wrote a default %s", Paths::FileUtf8(SM_INI).c_str());
-        LOG_NOTE("[settings] Enabled=%d DebugLog=%d Multiplier=%d", v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier);
+        LOG_NOTE("[settings] Enabled=%d DebugLog=%d Multiplier=%d StackSize=%d", v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier,
+                 v.stackSize);
     }
 
     const Values& Get()
