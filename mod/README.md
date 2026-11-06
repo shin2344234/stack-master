@@ -1,5 +1,8 @@
-Stack Master 1.0.6-test2 for the Crimson Desert DLC update, exe 1.0.0.3392 to 1.0.0.3576
-========================================================================================
+Stack Master 1.0.6 for Crimson Desert 2.04.08, exe 1.0.0.3576
+==============================================================
+
+Every DLC build from exe 1.0.0.3392 on shares the item record this plugin
+writes. Game versions before the DLC need Stack Master 1.0.3.
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
