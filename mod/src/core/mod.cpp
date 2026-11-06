@@ -29,12 +29,9 @@ namespace
             return 0;
         }
         sm::stacks::Start();
-        // The game reads its item table a few seconds in. Wait past that, then say
-        // what came of it, so the log answers "did it work" without a key to press.
-        const DWORD started = GetTickCount();
-        while (!g_stop.load() && GetTickCount() - started < 15000) Sleep(250);
-        if (g_stop.load()) return 0;
-        sm::stacks::Flush();
+        // Says what came of the item table once the game has read it, so the log
+        // answers "did it work" without a key to press. Returns at shutdown.
+        sm::stacks::Watch();
         return 0;
     }
 }

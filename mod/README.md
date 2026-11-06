@@ -1,5 +1,5 @@
-Stack Master 1.0.6-test1 for the Crimson Desert DLC update, exe 1.0.0.3392 and 1.0.0.3424
-=========================================================================================
+Stack Master 1.0.6-test2 for the Crimson Desert DLC update, exe 1.0.0.3392 to 1.0.0.3576
+========================================================================================
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
@@ -101,8 +101,9 @@ Reporting a problem
 -------------------
 
 Set DebugLog=1, play until it happens, close the game and attach
-StackMaster.log from bin64. It says how many items were raised, the biggest
-limit written, and names the first ten. For anything about the Stacks tab,
+StackMaster.log from bin64. It says how many items were raised and left alone,
+the biggest limit written and the stack each replenishing ammo item kept, and
+names the first ten raised. For anything about the Stacks tab,
 attach MasterLooter.log too.
 
 Building

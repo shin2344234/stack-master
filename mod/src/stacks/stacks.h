@@ -20,8 +20,10 @@ namespace sm::stacks
     };
 
     void Start();
-    // One line saying what the item table came out as, once the game has read it.
-    void Flush();
+    // Waits for the game to read its item table and logs what came of it, then
+    // keeps watching for later reads until Stop. Says the table was missed only
+    // when no record at all has arrived two minutes in.
+    void Watch();
     void Stop();
 
     // Raise the limits already in memory to a bigger multiplier, without a

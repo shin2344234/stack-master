@@ -4,8 +4,8 @@ A Crimson Desert plugin that raises how much of an item one inventory slot
 holds. Pick a multiplier and every item that already stacks holds that many
 times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100.
 Or set one stack size, such as 9999, for everything that stacks.
-Built for the Crimson Desert DLC update, exe 1.0.0.3392 and its 30 October
-update, 1.0.0.3424. Versions before the DLC need Stack Master 1.0.3.
+Built for the Crimson Desert DLC update, exe 1.0.0.3392, and checked on its
+updates up to 1.0.0.3576. Versions before the DLC need Stack Master 1.0.3.
 
 It changes no game file. The game reads its item table once while it starts, and
 the plugin raises each item's own limit as that happens, in memory. That is the

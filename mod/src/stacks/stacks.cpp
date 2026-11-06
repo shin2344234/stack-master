@@ -30,6 +30,8 @@ namespace sm::stacks
         // reported their Replenishing Arrows running out with the limit raised, and
         // the refill most likely goes by that limit, so these keep the game's own.
         constexpr uint32_t kKeepStock[] = {1002557, 1003753, 1003752};
+        constexpr const char* kKeepStockName[] = {"Replenishing Arrows", "Replenishing Bullets", "Replenishing Cannonballs"};
+        static_assert(_countof(kKeepStock) == _countof(kKeepStockName), "a name for every kKeepStock item");
 
         // Every record the hook raised, so a later multiplier can be worked out
         // from the game's own limit rather than from a number already multiplied
@@ -65,6 +67,14 @@ namespace sm::stacks
         // Records whose own limit was already at or over what the mod would
         // write, which with StackSize is every item the game stacks deeper.
         std::atomic<int> g_kept{0};
+        // Every record the hook saw, whatever came of it. Watch waits on this to
+        // know the game has started and then finished reading its item table.
+        std::atomic<int> g_seen{0};
+        // Records whose limit or key could not be read.
+        std::atomic<int> g_unreadable{0};
+        // The game's own limit for each kKeepStock item as it was read, -1 until
+        // then. Watch logs them, so the loader thread does not have to.
+        std::atomic<int64_t> g_keepStockSeen[_countof(kKeepStock)] = {-1, -1, -1};
         std::atomic<int> g_logged{0};
 
         // This mod hooks one function and reads no game state of its own, so it has
@@ -95,16 +105,17 @@ namespace sm::stacks
         // read here is always the game's own and a record cannot be raised twice.
         void PatchRecord(uintptr_t rec)
         {
+            ++g_seen;
             int64_t stock = 0;
-            if (!mem::ReadBytes(rec + kMaxStackCount, &stock, sizeof stock)) return;
+            if (!mem::ReadBytes(rec + kMaxStackCount, &stock, sizeof stock)) { ++g_unreadable; return; }
             // 0 and 1 are the game saying this item does not stack. Multiplying
             // those would let gear, quest items and mounts pile into one slot.
             if (stock <= 1) { ++g_unstackable; return; }
             if (stock >= kCeiling) { ++g_huge; return; }
             uint32_t key = 0;
-            if (!mem::Read32(rec + kKey, &key)) return;
-            for (const uint32_t k : kKeepStock)
-                if (key == k) return;
+            if (!mem::Read32(rec + kKey, &key)) { ++g_unreadable; return; }
+            for (size_t i = 0; i < _countof(kKeepStock); ++i)
+                if (key == kKeepStock[i]) { g_keepStockSeen[i] = stock; return; }
             // StackSize wins when set. It only ever raises: a stock limit at or
             // over it fails the test below and the record keeps the game's own.
             const int size = g_stackSize.load();
@@ -196,23 +207,78 @@ namespace sm::stacks
                      static_cast<long long>(kCeiling));
     }
 
-    void Flush()
+    namespace
     {
-        const int mult = g_multiplier.load();
-        const int size = g_stackSize.load();
-        if (!g_hooked.load()) return;
-        const int n = g_patched.load();
-        if (n && size)
-            LOG_NOTE("[stacks] %d items stack to %d now; %d the game already stacks to %d or more keep their own limit, and %d it "
-                     "stacks to %lld or more and %d it does not stack were left alone",
-                     n, size, g_kept.load(), size, g_huge.load(), static_cast<long long>(kCeiling), g_unstackable.load());
-        else if (n)
-            LOG_NOTE("[stacks] %d items stack x%d now, the biggest holding %lld; %d items the game does not stack were left alone", n, mult,
-                     static_cast<long long>(g_biggest.load()), g_unstackable.load());
-        else
+        void Summary(bool again)
         {
-            g_reason = kTooLate;
-            LOG_ERR("[stacks] no item was raised, so the game read its item table before the mod started. Stacks are the game's this session.");
+            const int size = g_stackSize.load();
+            const int mult = g_multiplier.load();
+            char rule[48];
+            if (size) snprintf(rule, sizeof rule, "to %d", size);
+            else snprintf(rule, sizeof rule, "x%d", mult);
+            int keptStock = 0;
+            for (const auto& s : g_keepStockSeen)
+                if (s.load() >= 0) ++keptStock;
+            LOG_NOTE("[stacks] %s%d item records read: raised %d %s, the biggest now %lld; left alone %d already at that or more, "
+                     "%d kept at stock, %d at %lld or more, %d that do not stack, %d unreadable",
+                     again ? "more of the item table was read, totals now " : "", g_seen.load(), g_patched.load(), rule,
+                     static_cast<long long>(g_biggest.load()), g_kept.load(), keptStock, g_huge.load(),
+                     static_cast<long long>(kCeiling), g_unstackable.load(), g_unreadable.load());
+            for (size_t i = 0; i < _countof(kKeepStock); ++i)
+            {
+                const int64_t s = g_keepStockSeen[i].load();
+                if (s >= 0)
+                    LOG_NOTE("[stacks] item %u, %s, kept at the game's own stack of %lld", kKeepStock[i], kKeepStockName[i],
+                             static_cast<long long>(s));
+                else
+                    LOG("[stacks] item %u, %s, was not read yet", kKeepStock[i], kKeepStockName[i]);
+            }
+            if (g_entriesFull.load())
+                LOG_ERR("[stacks] more than %d items were raised, so a raise from the Stacks tab misses the ones past that", kMaxEntries);
+        }
+    }
+
+    // The game reads its item table some seconds into a launch, and how many
+    // depends on the build and what else is installed: on exe 1.0.0.3576 on 6
+    // November it was 21 seconds after the plugin started, past the fixed 15 it
+    // used to wait. So this waits for the first record, then for the reads to go
+    // quiet, and sums up then. A later read of more records gets its own line.
+    void Watch()
+    {
+        if (!g_hooked.load()) return;
+        constexpr DWORD kQuiet = 3000;       // no new record for this long means the read is done
+        constexpr DWORD kGiveUp = 120000;    // no record at all after this long means it was missed
+        const DWORD started = GetTickCount();
+        DWORD changed = started;
+        int last = 0, reported = 0;
+        bool late = false;
+        while (!g_stop.load())
+        {
+            Sleep(250);
+            const DWORD now = GetTickCount();
+            const int seen = g_seen.load();
+            if (seen != last) { last = seen; changed = now; }
+            if (seen == 0)
+            {
+                if (!late && now - started >= kGiveUp)
+                {
+                    late = true;
+                    g_reason = kTooLate;
+                    LOG_ERR("[stacks] the game has read no item record in %lu seconds, so it most likely read its item table before "
+                            "the mod started. Stacks are the game's this session.",
+                            static_cast<unsigned long>(kGiveUp / 1000));
+                }
+                continue;
+            }
+            if (seen == reported || now - changed < kQuiet) continue;
+            if (late)
+            {
+                late = false;
+                g_reason = kApplying;
+                LOG_NOTE("[stacks] item records arrived after all, %lu seconds in", static_cast<unsigned long>((now - started) / 1000));
+            }
+            Summary(reported != 0);
+            reported = seen;
         }
     }
 
