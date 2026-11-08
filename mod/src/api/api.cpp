@@ -87,8 +87,11 @@ STACK_EXPORT int StackStandDownText(int reason, char* out, int outLen)
             snprintf(out, static_cast<size_t>(outLen), "%s is setting the stack sizes.", SM_NAME);
         return 1;
     case STACK_STANDDOWN_OFF:
+        // Multiplier=1 is the old default, and a tab that only said "switched off"
+        // left a player hunting for the switch.
         snprintf(out, static_cast<size_t>(outLen), sm::Settings::Get().enabled
-                                                      ? "Installed, but switched off: stacks hold what the game gives them."
+                                                      ? "Installed, but Multiplier=1 and StackSize=0 in StackMaster.ini, so stacks hold what the game "
+                                                        "gives them. A multiplier picked here takes hold at the next start."
                                                       : "Turned off in StackMaster.ini with Enabled=0.");
         return 1;
     case STACK_STANDDOWN_OTHER_MOD:

@@ -168,7 +168,11 @@ namespace sm::stacks
         if (mult <= 1 && size <= 1)
         {
             g_reason = kOff;
-            LOG_NOTE("[stacks] Multiplier=1 and StackSize=0, so stacks hold what the game gives them");
+            // An error, not a note: a player reading the log for why the mod
+            // "does not work" is looking for one, and this is the whole answer.
+            // Enabled=0 is the quiet way off and logs a note instead.
+            LOG_ERR("[stacks] nothing is raised this session: Multiplier=1 and StackSize=0 in StackMaster.ini. Set Multiplier to 5 or more, "
+                    "or set StackSize, and start the game again. Enabled=0 is the way to switch the mod off on purpose");
             return;
         }
         g_multiplier = mult;

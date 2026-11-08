@@ -70,14 +70,38 @@ namespace sm::Settings
             return true;
         }
 
+        // The version that wrote the ini, from the header WriteIni puts on its
+        // first line, "; Stack Master 1.0.4". Empty when the file has no such
+        // line, which a file typed by hand does not.
+        char g_writtenBy[16];
+
+        // True when the header names a version older than major.minor.patch,
+        // false when there is no header to go by.
+        bool WrittenBefore(int major, int minor, int patch)
+        {
+            int a = 0, b = 0, c = 0;
+            if (sscanf_s(g_writtenBy, "%d.%d.%d", &a, &b, &c) != 3) return false;
+            if (a != major) return a < major;
+            if (b != minor) return b < minor;
+            return c < patch;
+        }
+
         void ReadIni(Values& out)
         {
             FILE* f = nullptr;
             if (_wfopen_s(&f, Paths::File(SM_INI).c_str(), L"r") != 0 || !f) return;
             char line[512];
+            bool first = true;
             while (fgets(line, sizeof line, f))
             {
                 Trim(line);
+                if (first)
+                {
+                    first = false;
+                    const size_t n = strlen(SM_NAME);
+                    if (line[0] == ';' && line[1] == ' ' && strncmp(line + 2, SM_NAME, n) == 0 && line[2 + n] == ' ')
+                        snprintf(g_writtenBy, sizeof g_writtenBy, "%s", line + 3 + n);
+                }
                 if (!line[0] || line[0] == ';' || line[0] == '#' || line[0] == '[') continue;
                 char* eq = strchr(line, '=');
                 if (!eq) continue;
@@ -143,9 +167,18 @@ namespace sm::Settings
         if (!have) WriteIni(v);
         g_startup = new Values(v);
         Publish(v);
-        if (!have) LOG_NOTE("[settings] wrote a default %s", Paths::FileUtf8(SM_INI).c_str());
+        if (!have)
+            LOG_NOTE("[settings] wrote a default %s with Multiplier=%d, so stacks are raised from this first run", Paths::FileUtf8(SM_INI).c_str(),
+                     v.multiplier);
         LOG_NOTE("[settings] Enabled=%d DebugLog=%d Multiplier=%d StackSize=%d", v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier,
                  v.stackSize);
+        // 1.0.4 and earlier wrote Multiplier=1 into a new ini, and a file still at
+        // 1 from then is the usual cause of a "not working" report. Said here,
+        // because stacks/stacks sees the number and not where it came from.
+        if (have && v.enabled && v.multiplier <= 1 && v.stackSize == 0 && WrittenBefore(1, 0, 5))
+            LOG_NOTE("[settings] %s was written by %s %s, when a new install started at Multiplier=1. Since 1.0.5 a new install starts at 5; "
+                     "this file kept its 1",
+                     Paths::FileUtf8(SM_INI).c_str(), SM_NAME, g_writtenBy);
     }
 
     const Values& Get()
