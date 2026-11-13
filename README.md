@@ -4,7 +4,7 @@ A Crimson Desert plugin that raises how much of an item one inventory slot
 holds. Pick a multiplier and every item that already stacks holds that many
 times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100.
 Or set one stack size, such as 9999, for everything that stacks.
-Built for Crimson Desert 2.04.08, exe 1.0.0.3576. Every DLC build from exe
+Built for Crimson Desert 2.05.00, exe 1.0.0.3663. Every DLC build from exe
 1.0.0.3392 on shares the item record it writes. Versions before the DLC need
 Stack Master 1.0.3.
 
@@ -27,6 +27,11 @@ already use. On first run it writes `StackMaster.ini` next to itself with
 
 so every stack holds five times the game's own from the first launch. Change
 the number and restart the game to pick another.
+
+An ini written by 1.0.4 or earlier started at `Multiplier=1`, and updating the
+plugin keeps your ini, so that 1 stays and nothing is raised. The log says so
+with an error line naming the setting to change, and Master Looter's Stacks tab
+shows the same reason.
 
 `StackSize=9999` gives every item that stacks a limit of 9999 in place of the
 multiplier. It is 0, off, by default. `Enabled=0` turns the mod off.
@@ -110,11 +115,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.6:
+SHA-256 for 1.0.7:
 
-    76c8571abc13dab76e5cc8ab59137a21b2ece812bfa427631521ad26f96179e3  StackMaster-1.0.6-DMM.zip
-    7a1abaf31d53d6bd012761d86afb9aa4b62e3e6486c05758cc00ace6cd4bdf7e  StackMaster-1.0.6.zip
-    cb1ba14fc0823e6850b214e2206c842fd815ac9c3d491eea4ea82e0a0f971ff0  StackMaster.asi
+    9dbfe5b9a45308e31a4ff9d8878c32c36327ef4b49d6d2acd1cb99bd0d0f4135  StackMaster-1.0.7-DMM.zip
+    281cc727ee71b0d9d0a481b07f4caf3eb50dc2cd3f4646cb2909d9e4c1cdd022  StackMaster-1.0.7.zip
+    e4554d1a43241e083324e413d58859e9a921248275f656441d5fe68919fb26a7  StackMaster.asi
 
 ## Discord and Patreon
 

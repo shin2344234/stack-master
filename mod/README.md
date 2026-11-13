@@ -1,4 +1,4 @@
-Stack Master 1.0.6 for Crimson Desert 2.04.08, exe 1.0.0.3576
+Stack Master 1.0.7 for Crimson Desert 2.05.00, exe 1.0.0.3663
 ==============================================================
 
 Every DLC build from exe 1.0.0.3392 on shares the item record this plugin
@@ -25,6 +25,10 @@ Install
 4. To pick another multiplier, or one stack size for everything, change it in
    the ini and start the game again.
 
+Updating keeps your StackMaster.ini. One written by 1.0.4 or earlier started at
+Multiplier=1, which raises nothing, so check that line after updating from an
+old version.
+
 To uninstall, delete the StackMaster files from bin64. Read "Turning it back
 down" first.
 
@@ -34,8 +38,9 @@ Settings
 StackMaster.ini, written on the first run with every setting explained.
 
     Multiplier=5      how much one slot holds, as a multiple of the game's own
-                      limit for that item. 1 changes nothing and the plugin
-                      installs no hook at all.
+                      limit for that item. 1 changes nothing, the plugin
+                      installs no hook at all, and the log says so with an
+                      error line.
     Enabled=0         turns the whole mod off.
     StackSize=9999    one stack size for every item that stacks, in place of
                       the multiplier. 0, the default, is off.
