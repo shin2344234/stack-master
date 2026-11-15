@@ -64,7 +64,9 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     // off. Enabled=1 saved over a launch that started with 0 does need one.
     const sm::Settings::Values& launch = sm::Settings::Startup();
     const bool enabledNow = sm::Settings::Get().enabled;
-    fill->restartNeeded = fill->applying ? fill->multiplierSetting != fill->multiplier
+    // StackSize too: a pick on the tab refreshes Get() from the ini, so a size
+    // set or cleared in INI Master shows here and waits for the next launch.
+    fill->restartNeeded = fill->applying ? fill->multiplierSetting != fill->multiplier || sm::Settings::Get().stackSize != r.stackSize
                                          : enabledNow && (!launch.enabled || fill->multiplierSetting != launch.multiplier);
     fill->itemsRaised = r.patched;
     fill->itemsUnstackable = r.unstackable;
