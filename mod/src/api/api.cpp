@@ -59,10 +59,13 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     // needed. While not applying, `multiplier` is 1 whatever the ini holds, so
     // that comparison would ask for a restart the player never caused and that
     // would change nothing. Then only a setting changed since the launch began
-    // waits for one. Enabled=0 is the other half of RestartNeeded and is
-    // reported as a stand-down, not here.
+    // waits for one. With Enabled=0 in the ini a restart changes nothing, so a
+    // multiplier picked then asks for none; the stand-down text says the mod is
+    // off. Enabled=1 saved over a launch that started with 0 does need one.
+    const sm::Settings::Values& launch = sm::Settings::Startup();
+    const bool enabledNow = sm::Settings::Get().enabled;
     fill->restartNeeded = fill->applying ? fill->multiplierSetting != fill->multiplier
-                                         : fill->multiplierSetting != sm::Settings::Startup().multiplier;
+                                         : enabledNow && (!launch.enabled || fill->multiplierSetting != launch.multiplier);
     fill->itemsRaised = r.patched;
     fill->itemsUnstackable = r.unstackable;
     fill->ceiling = STACK_CEILING;
