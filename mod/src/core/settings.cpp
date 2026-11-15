@@ -25,8 +25,12 @@ namespace sm::Settings
 
         bool WriteIni(const Values& v)
         {
+            // Written beside the ini and moved over it, the way INI Master saves,
+            // so a reader never finds the file empty or half written.
+            const std::wstring path = Paths::File(SM_INI);
+            const std::wstring tmp = path + L".tmp";
             FILE* f = nullptr;
-            if (_wfopen_s(&f, Paths::File(SM_INI).c_str(), L"w") != 0 || !f) return false;
+            if (_wfopen_s(&f, tmp.c_str(), L"w") != 0 || !f) return false;
             fprintf(f,
                     "; %s %s\n"
                     "; Bigger stacks of stackable items, for Crimson Desert %s.\n"
@@ -67,7 +71,12 @@ namespace sm::Settings
                     "; allowed is 999999. It takes effect the next time the game starts.\n"
                     "StackSize=%d\n",
                     SM_NAME, SM_VERSION, SM_GAME, v.enabled ? 1 : 0, v.debugLog ? 1 : 0, v.multiplier, v.stackSize);
-            fclose(f);
+            const bool wrote = !ferror(f);
+            if (fclose(f) != 0 || !wrote || !MoveFileExW(tmp.c_str(), path.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+            {
+                DeleteFileW(tmp.c_str());
+                return false;
+            }
             return true;
         }
 
@@ -87,10 +96,11 @@ namespace sm::Settings
             return c < patch;
         }
 
-        void ReadIni(Values& out)
+        // False when the file is there but could not be opened.
+        bool ReadIni(Values& out)
         {
             FILE* f = nullptr;
-            if (_wfopen_s(&f, Paths::File(SM_INI).c_str(), L"r") != 0 || !f) return;
+            if (_wfopen_s(&f, Paths::File(SM_INI).c_str(), L"r") != 0 || !f) return false;
             char line[512];
             bool first = true;
             while (fgets(line, sizeof line, f))
@@ -121,6 +131,7 @@ namespace sm::Settings
                 else LOG_NOTE("[settings] %s is not a setting this version knows; ignored", key);
             }
             fclose(f);
+            return true;
         }
 
         void Clamp(Values& v)
@@ -216,7 +227,23 @@ namespace sm::Settings
         // rewrites all of it. Starting from Get() alone would put back the
         // launch values over whatever was set there since. ReadIni only sets
         // the keys it finds, so a key missing from the file keeps Get()'s.
-        ReadIni(v);
+        // INI Master saves by moving a new file over the old one, so a failed
+        // open is most likely that moment and is tried again. A file that
+        // stays unreadable refuses the change rather than overwrite it blind.
+        const std::wstring path = Paths::File(SM_INI);
+        bool read = GetFileAttributesW(path.c_str()) == INVALID_FILE_ATTRIBUTES;
+        for (int i = 0; !read && i < 5; ++i)
+        {
+            if (i) Sleep(20);
+            read = ReadIni(v);
+        }
+        if (!read)
+        {
+            ReleaseSRWLockExclusive(&g_writeLock);
+            if (why && whyLen) snprintf(why, whyLen, "%s could not be read, so nothing was changed", Paths::FileUtf8(SM_INI).c_str());
+            LOG_NOTE("[settings] not changed, because the ini could not be read");
+            return false;
+        }
         change(v);
         const bool ok = CommitLocked(v, why, whyLen);
         ReleaseSRWLockExclusive(&g_writeLock);

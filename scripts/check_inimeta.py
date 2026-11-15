@@ -63,7 +63,8 @@ def body(src, head):
 def parse_written(cpp):
     """The ini keys WriteIni()'s fprintf format string actually writes."""
     src = body(cpp, "bool WriteIni(")
-    fmt = src[src.index('fprintf(f,'):src.index(');')]
+    start = src.index('fprintf(f,')
+    fmt = src[start:src.index(');', start)]
     return set(re.findall(r"(\w+)=%[a-z]", fmt))
 
 
@@ -71,7 +72,7 @@ def parse_reader(cpp):
     """ini key -> (member, kind) from ReadIni(), skipping alias lines that
     read into a member another key already owns (StackMultiplier -> multiplier,
     kept for players who paste in a Private Storage Master line)."""
-    src = body(cpp, "void ReadIni(")
+    src = body(cpp, "bool ReadIni(")
     out, seen_members = {}, set()
     for m in re.finditer(r'_stricmp\(key,\s*"(\w+)"\)\s*==\s*0\)\s*out\.(\w+)\s*=\s*(.*?);', src):
         key, member, expr = m.group(1), m.group(2), m.group(3)
