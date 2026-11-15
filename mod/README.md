@@ -1,4 +1,4 @@
-Stack Master 1.0.7 for Crimson Desert 2.05.00, exe 1.0.0.3663
+Stack Master 1.0.8 for Crimson Desert 2.05.00, exe 1.0.0.3663
 ==============================================================
 
 Every DLC build from exe 1.0.0.3392 on shares the item record this plugin
@@ -59,6 +59,13 @@ Private Storage Master is installed too, since this plugin borrows that mod's
 free-play check to know when a change is safe. On the DLC update that takes
 Private Storage Master 1.1.8 or later. On its own, a change from the tab waits
 for the next start.
+
+A multiplier picked on the Stacks tab is saved on top of the ini as it is at that
+moment, so settings you changed in INI Master during the session stay. If the ini
+cannot be read or written, the tab refuses the pick and says so, and nothing is
+saved. A pick is also refused when StackSize is set in the ini, even if you set
+it after the game started. With Enabled=0 saved in the ini, the tab raises
+nothing and asks for no restart, since the mod is off from the next start.
 
 INI Master (https://www.nexusmods.com/crimsondesert/mods/3578) can edit the four
 settings with a label, a range and the default for each, all read out of the

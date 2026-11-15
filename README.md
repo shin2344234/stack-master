@@ -52,6 +52,13 @@ plugin itself. Multiplier runs from 1 to 1000 and StackSize from 0 to 999999.
 The plugin reads the ini once at startup, so a change made there waits for the
 next launch.
 
+A multiplier picked on the Stacks tab is saved on top of the ini as it is at that
+moment, so settings you changed in INI Master during the session stay. If the ini
+cannot be read or written, the tab refuses the pick and says so, and nothing is
+saved. A pick is also refused when StackSize is set in the ini, even if you set
+it after the game started. With `Enabled=0` saved in the ini, the tab raises
+nothing and asks for no restart, since the mod is off from the next start.
+
 ## One stack size for everything
 
 A multiplier scales each item's own limit, and the game's limits differ by item,
@@ -115,11 +122,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.7:
+SHA-256 for 1.0.8:
 
-    9dbfe5b9a45308e31a4ff9d8878c32c36327ef4b49d6d2acd1cb99bd0d0f4135  StackMaster-1.0.7-DMM.zip
-    281cc727ee71b0d9d0a481b07f4caf3eb50dc2cd3f4646cb2909d9e4c1cdd022  StackMaster-1.0.7.zip
-    e4554d1a43241e083324e413d58859e9a921248275f656441d5fe68919fb26a7  StackMaster.asi
+    f66f4b5c0f8ca44d68a1a574831abba2f4fdd4ca886b7d8eebcebeec0f0bf773  StackMaster-1.0.8-DMM.zip
+    4cefafa5f96cd4d286344cc9729387e54fd4b3e1255670dc55b353de07559d3c  StackMaster-1.0.8.zip
+    cdc4011b001cf797fabcda374c48875dc0c1dc41839664aa09b05973d09a279c  StackMaster.asi
 
 ## Discord and Patreon
 
