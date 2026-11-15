@@ -206,6 +206,11 @@ namespace sm::Settings
         if (why && whyLen) why[0] = 0;
         AcquireSRWLockExclusive(&g_writeLock);
         Values v = Get();
+        // INI Master writes this file while the game runs, and WriteIni below
+        // rewrites all of it. Starting from Get() alone would put back the
+        // launch values over whatever was set there since. ReadIni only sets
+        // the keys it finds, so a key missing from the file keeps Get()'s.
+        ReadIni(v);
         change(v);
         const int result = CommitLocked(v, why, whyLen);
         ReleaseSRWLockExclusive(&g_writeLock);

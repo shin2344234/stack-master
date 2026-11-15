@@ -52,7 +52,9 @@ namespace sm::Settings
     // Checks, publishes and writes the ini. False with a reason when refused.
     bool Apply(const Values& v, char* why, size_t whyLen);
     // The same for a change to some fields, under the write lock, so two threads
-    // changing different fields cannot undo each other.
+    // changing different fields cannot undo each other. The other fields come
+    // from the ini as it is now, so an edit made in INI Master since the launch
+    // is kept.
     bool Update(const std::function<void(Values&)>& change, char* why, size_t whyLen);
     // True when a setting differs from what this launch started with.
     bool RestartNeeded();
