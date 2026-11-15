@@ -103,10 +103,16 @@ STACK_EXPORT int StackStandDownText(int reason, char* out, int outLen)
         // Multiplier=1 is the old default, and a tab that only said "switched off"
         // left a player hunting for the switch. Told from the launch, since that
         // is what left stacks alone this session.
-        snprintf(out, static_cast<size_t>(outLen), sm::Settings::Startup().enabled
-                                                      ? "Installed, but Multiplier=1 and StackSize=0 in StackMaster.ini, so stacks hold what the game "
-                                                        "gives them. A multiplier picked here takes hold at the next start."
-                                                      : "Turned off in StackMaster.ini with Enabled=0.");
+        // The next start is promised only while the ini as last read still has
+        // the mod on.
+        if (!sm::Settings::Startup().enabled)
+            snprintf(out, static_cast<size_t>(outLen), "Turned off in StackMaster.ini with Enabled=0.");
+        else if (!sm::Settings::Get().enabled)
+            snprintf(out, static_cast<size_t>(outLen), "Started with Multiplier=1 and StackSize=0, so stacks hold what the game gives them. "
+                                                      "Enabled=0 is now saved in StackMaster.ini, so the mod is off from the next start.");
+        else
+            snprintf(out, static_cast<size_t>(outLen), "Installed, but Multiplier=1 and StackSize=0 in StackMaster.ini, so stacks hold what the "
+                                                      "game gives them. A multiplier picked here takes hold at the next start.");
         return 1;
     case STACK_STANDDOWN_OTHER_MOD:
         snprintf(out, static_cast<size_t>(outLen), "Another mod is setting the stack sizes.");
