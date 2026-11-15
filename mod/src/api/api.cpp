@@ -101,8 +101,9 @@ STACK_EXPORT int StackStandDownText(int reason, char* out, int outLen)
         return 1;
     case STACK_STANDDOWN_OFF:
         // Multiplier=1 is the old default, and a tab that only said "switched off"
-        // left a player hunting for the switch.
-        snprintf(out, static_cast<size_t>(outLen), sm::Settings::Get().enabled
+        // left a player hunting for the switch. Told from the launch, since that
+        // is what left stacks alone this session.
+        snprintf(out, static_cast<size_t>(outLen), sm::Settings::Startup().enabled
                                                       ? "Installed, but Multiplier=1 and StackSize=0 in StackMaster.ini, so stacks hold what the game "
                                                         "gives them. A multiplier picked here takes hold at the next start."
                                                       : "Turned off in StackMaster.ini with Enabled=0.");
