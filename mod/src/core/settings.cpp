@@ -147,13 +147,19 @@ namespace sm::Settings
             Log::SetDebug(v.debugLog);
         }
 
-        int CommitLocked(Values v, char* why, size_t whyLen)
+        // Written first and published only once it is on disk. A change the
+        // file did not take would otherwise show as the setting through
+        // StackGetStatus while the next launch reads the old one.
+        bool CommitLocked(Values v, char* why, size_t whyLen)
         {
             Clamp(v);
+            if (!WriteIni(v))
+            {
+                if (why && whyLen) snprintf(why, whyLen, "%s could not be written, so nothing was changed", Paths::FileUtf8(SM_INI).c_str());
+                return false;
+            }
             Publish(v);
-            if (WriteIni(v)) return 1;
-            if (why && whyLen) snprintf(why, whyLen, "applied, but %s could not be written", Paths::FileUtf8(SM_INI).c_str());
-            return 2;
+            return true;
         }
     }
 
@@ -195,10 +201,10 @@ namespace sm::Settings
     {
         if (why && whyLen) why[0] = 0;
         AcquireSRWLockExclusive(&g_writeLock);
-        const int result = CommitLocked(in, why, whyLen);
+        const bool ok = CommitLocked(in, why, whyLen);
         ReleaseSRWLockExclusive(&g_writeLock);
-        LOG("[settings] changed in game%s", result == 1 ? " and saved" : ", but the ini could not be written");
-        return result == 1;
+        LOG("[settings] %s", ok ? "changed in game and saved" : "not changed, because the ini could not be written");
+        return ok;
     }
 
     bool Update(const std::function<void(Values&)>& change, char* why, size_t whyLen)
@@ -212,10 +218,10 @@ namespace sm::Settings
         // the keys it finds, so a key missing from the file keeps Get()'s.
         ReadIni(v);
         change(v);
-        const int result = CommitLocked(v, why, whyLen);
+        const bool ok = CommitLocked(v, why, whyLen);
         ReleaseSRWLockExclusive(&g_writeLock);
-        LOG("[settings] changed in game%s", result == 1 ? " and saved" : ", but the ini could not be written");
-        return result == 1;
+        LOG("[settings] %s", ok ? "changed in game and saved" : "not changed, because the ini could not be written");
+        return ok;
     }
 
     bool RestartNeeded()
