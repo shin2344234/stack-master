@@ -347,6 +347,22 @@ namespace sm::stacks
         // for a screen that disagrees with the data.
         if (!FreePlayNow())
             return no("raising a stack size needs free play with no storage screen open");
+        // One raise at a time: two walking the list together would each take
+        // the other's write for something else's and skip the record.
+        static SRWLOCK lock = SRWLOCK_INIT;
+        AcquireSRWLockExclusive(&lock);
+        const int inForce = g_multiplier.load();
+        if (multiplier <= inForce)
+        {
+            ReleaseSRWLockExclusive(&lock);
+            return no("a smaller multiplier cannot touch stacks already built, because a slot holding more than the game "
+                      "allows would be left stranded over the limit");
+        }
+        // In force before the walk, not after it. A record the game reads again
+        // while this runs then gets the new multiplier from PatchRecord, and the
+        // walk finds it already there, instead of the walk passing it first and
+        // the read putting the old size back.
+        g_multiplier.store(multiplier);
         const int count = g_entryCount.load();
         int changed = 0, skipped = 0;
         int64_t biggest = 0;
@@ -371,9 +387,8 @@ namespace sm::stacks
             if (want > biggest) biggest = want;
             ++changed;
         }
-        // Records the game reads after this get the new multiplier too.
-        g_multiplier.store(multiplier);
         if (biggest > g_biggest.load()) g_biggest = biggest;
+        ReleaseSRWLockExclusive(&lock);
         LOG_NOTE("[stacks] raised to x%d without a restart: %d items changed, the biggest now %lld%s", multiplier, changed,
                  static_cast<long long>(biggest), skipped ? ", some left alone because something else had changed them" : "");
         if (skipped) LOG("[stacks] %d records were not what the mod last wrote, so they were left alone", skipped);
