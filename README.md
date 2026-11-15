@@ -114,8 +114,13 @@ exports the same names, so a caller finds whichever is installed.
 
 ## Antivirus
 
-A scanner or two may flag the plugin, because the shape of what it does looks
-like a trainer to a model: it is a DLL loaded into the game that searches the
+VirusTotal flags 1.0.8 once on each file. DeepInstinct, which reports the word
+MALICIOUS and names nothing it found, flagged the plugin (1 of 71), the DMM
+archive (1 of 67) and the full archive (1 of 67), and no other scanner flagged
+any of the three. Releases 1.0.0 to 1.0.7 were clean on every file, so this is
+the first flag.
+
+A model can take the shape of what the plugin does for a trainer. It is a DLL loaded into the game that searches the
 game's code for a byte pattern and writes a jump over one of its functions. It
 imports only kernel32 and user32, so there is no network code in it, and it reads
 and writes no registry key and no game file. It is code signed by Seth Walker
