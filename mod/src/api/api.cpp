@@ -54,10 +54,15 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     fill->hooked = r.hooked;
     fill->multiplier = r.multiplier;
     fill->multiplierSetting = sm::Settings::Get().multiplier;
-    // Against what is in force, not against what the launch started with: a live
-    // raise makes the two agree, and then no restart is needed. Enabled=0 is the
-    // other half of RestartNeeded and is reported as a stand-down, not here.
-    fill->restartNeeded = fill->multiplierSetting != fill->multiplier;
+    // While applying, against what is in force, not against what the launch
+    // started with: a live raise makes the two agree, and then no restart is
+    // needed. While not applying, `multiplier` is 1 whatever the ini holds, so
+    // that comparison would ask for a restart the player never caused and that
+    // would change nothing. Then only a setting changed since the launch began
+    // waits for one. Enabled=0 is the other half of RestartNeeded and is
+    // reported as a stand-down, not here.
+    fill->restartNeeded = fill->applying ? fill->multiplierSetting != fill->multiplier
+                                         : fill->multiplierSetting != sm::Settings::Startup().multiplier;
     fill->itemsRaised = r.patched;
     fill->itemsUnstackable = r.unstackable;
     fill->ceiling = STACK_CEILING;
