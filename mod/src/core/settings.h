@@ -54,8 +54,9 @@ namespace sm::Settings
     // The same for a change to some fields, under the write lock, so two threads
     // changing different fields cannot undo each other. The other fields come
     // from the ini as it is now, so an edit made in INI Master since the launch
-    // is kept.
-    bool Update(const std::function<void(Values&)>& change, char* why, size_t whyLen);
+    // is kept. `change` sees those fields and returns false, with its own
+    // reason in `why`, to refuse; nothing is written then.
+    bool Update(const std::function<bool(Values&)>& change, char* why, size_t whyLen);
     // True when a setting differs from what this launch started with.
     bool RestartNeeded();
 }

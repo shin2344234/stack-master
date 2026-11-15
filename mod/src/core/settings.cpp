@@ -218,7 +218,7 @@ namespace sm::Settings
         return ok;
     }
 
-    bool Update(const std::function<void(Values&)>& change, char* why, size_t whyLen)
+    bool Update(const std::function<bool(Values&)>& change, char* why, size_t whyLen)
     {
         if (why && whyLen) why[0] = 0;
         AcquireSRWLockExclusive(&g_writeLock);
@@ -244,7 +244,13 @@ namespace sm::Settings
             LOG_NOTE("[settings] not changed, because the ini could not be read");
             return false;
         }
-        change(v);
+        // As the next launch will read them, so StackSize=1 counts as the off it is.
+        Clamp(v);
+        if (!change(v))
+        {
+            ReleaseSRWLockExclusive(&g_writeLock);
+            return false;
+        }
         const bool ok = CommitLocked(v, why, whyLen);
         ReleaseSRWLockExclusive(&g_writeLock);
         LOG("[settings] %s", ok ? "changed in game and saved" : "not changed, because the ini could not be written");

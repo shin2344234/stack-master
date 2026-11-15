@@ -132,16 +132,24 @@ STACK_EXPORT int StackApplyMultiplier(int multiplier, char* why, int whyLen)
         if (why && whyLen > 0) snprintf(why, static_cast<size_t>(whyLen), "the multiplier has to be between 1 and %d", STACK_MAX_MULTIPLIER);
         return 0;
     }
-    // Saving it would change nothing, now or after a restart, and the tab would
-    // look as if it had worked. Refused with the reason, which the tab shows.
-    if (const int size = sm::Settings::Get().stackSize)
+    // Saving it while StackSize is set would change nothing, now or after a
+    // restart, and the tab would look as if it had worked. Refused with the
+    // reason, which the tab shows. Tested on what the ini holds now, inside
+    // Update, so a StackSize set or cleared in INI Master since the launch
+    // counts.
+    const auto change = [multiplier, why, whyLen](sm::Settings::Values& v)
     {
-        if (why && whyLen > 0)
-            snprintf(why, static_cast<size_t>(whyLen),
-                     "StackSize=%d in StackMaster.ini sets every stack, so the multiplier does nothing. Set StackSize=0 there to use it.", size);
-        return 0;
-    }
-    const auto change = [multiplier](sm::Settings::Values& v) { v.multiplier = multiplier; };
+        if (v.stackSize)
+        {
+            if (why && whyLen > 0)
+                snprintf(why, static_cast<size_t>(whyLen),
+                         "StackSize=%d in StackMaster.ini sets every stack, so the multiplier does nothing. Set StackSize=0 there to use it.",
+                         v.stackSize);
+            return false;
+        }
+        v.multiplier = multiplier;
+        return true;
+    };
     if (!sm::Settings::Update(change, why, why && whyLen > 0 ? static_cast<size_t>(whyLen) : 0)) return 0;
     // Raising can take hold now. Anything else waits for the next launch, which
     // the caller sees as restartNeeded on its next status read. A refusal there is
