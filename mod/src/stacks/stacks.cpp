@@ -75,7 +75,20 @@ namespace sm::stacks
         // The game's own limit for each kKeepStock item as it was read, -1 until
         // then. Watch logs them, so the loader thread does not have to.
         std::atomic<int64_t> g_keepStockSeen[_countof(kKeepStock)] = {-1, -1, -1};
+        // The first items raised, for DebugLog. The loader thread only fills a
+        // slot and marks it ready; Watch writes the lines, so no log call, lock
+        // or file write happens on the game's thread.
+        constexpr int kFirstLines = 10;
+        struct Raised
+        {
+            uint32_t key;
+            int64_t stock;
+            int64_t want;
+        };
+        Raised g_first[kFirstLines];
+        std::atomic<bool> g_firstReady[kFirstLines];
         std::atomic<int> g_logged{0};
+        int g_firstWritten = 0;   // Watch's thread only
 
         // This mod hooks one function and reads no game state of its own, so it has
         // no way to tell free play from a shop or a cutscene. Private Storage
@@ -130,7 +143,10 @@ namespace sm::stacks
             // Remembered so RaiseNow can recompute from the stock limit. A record
             // reads again lands here again, and the entry is updated rather than
             // repeated, so the list cannot drift from what the records hold.
-            const int have = g_entryCount.load();
+            // A full table sends the count past kMaxEntries for a moment before
+            // it is set back, so it is bounded here as well.
+            int have = g_entryCount.load();
+            if (have > kMaxEntries) have = kMaxEntries;
             int slot = -1;
             for (int i = 0; i < have; ++i)
                 if (g_entries[i].rec == rec) { slot = i; break; }
@@ -147,9 +163,25 @@ namespace sm::stacks
             if (slot >= 0) g_entries[slot] = Entry{rec, stock, want};
             ++g_patched;
             if (want > g_biggest.load()) g_biggest = want;
-            if (Log::Debug() && g_logged.fetch_add(1) < 10)
+            if (Log::Debug())
             {
-                LOG("[stacks] item %u stacks to %lld instead of %lld", key, static_cast<long long>(want), static_cast<long long>(stock));
+                const int i = g_logged.fetch_add(1);
+                if (i < kFirstLines)
+                {
+                    g_first[i] = Raised{key, stock, want};
+                    g_firstReady[i].store(true);
+                }
+            }
+        }
+
+        // Watch's thread. Writes the first-items lines the loader threads left,
+        // in the order they were raised.
+        void WriteFirstRaised()
+        {
+            while (g_firstWritten < kFirstLines && g_firstReady[g_firstWritten].load())
+            {
+                const Raised& r = g_first[g_firstWritten++];
+                LOG("[stacks] item %u stacks to %lld instead of %lld", r.key, static_cast<long long>(r.want), static_cast<long long>(r.stock));
             }
         }
 
@@ -261,6 +293,7 @@ namespace sm::stacks
             Sleep(250);
             const DWORD now = GetTickCount();
             const int seen = g_seen.load();
+            WriteFirstRaised();
             if (seen != last) { last = seen; changed = now; }
             if (seen == 0)
             {
