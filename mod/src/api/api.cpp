@@ -66,7 +66,9 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     const bool enabledNow = sm::Settings::Get().enabled;
     // StackSize too: a pick on the tab refreshes Get() from the ini, so a size
     // set or cleared in INI Master shows here and waits for the next launch.
-    fill->restartNeeded = fill->applying ? fill->multiplierSetting != fill->multiplier || sm::Settings::Get().stackSize != r.stackSize
+    // An Enabled=0 read the same way turns the mod off at the next launch.
+    fill->restartNeeded = fill->applying ? !enabledNow || fill->multiplierSetting != fill->multiplier ||
+                                               sm::Settings::Get().stackSize != r.stackSize
                                          : enabledNow && (!launch.enabled || fill->multiplierSetting != launch.multiplier);
     fill->itemsRaised = r.patched;
     fill->itemsUnstackable = r.unstackable;
@@ -156,6 +158,13 @@ STACK_EXPORT int StackApplyMultiplier(int multiplier, char* why, int whyLen)
     // Raising can take hold now. Anything else waits for the next launch, which
     // the caller sees as restartNeeded on its next status read. A refusal there is
     // not a failure of this call: the setting is saved either way.
+    // Enabled=0 saved in INI Master since the launch means the player turned the
+    // mod off, so nothing is raised for a launch that will not raise it.
+    if (!sm::Settings::Get().enabled)
+    {
+        LOG("[stacks] x%d is saved, but not raised now, because Enabled=0 in the ini turns the mod off at the next start.", multiplier);
+        return 1;
+    }
     char note[192];
     if (!sm::stacks::RaiseNow(multiplier, note, sizeof note)) LOG("[stacks] x%d is saved for the next launch. Not now, because %s.", multiplier, note);
     return 1;
