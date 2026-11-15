@@ -74,7 +74,8 @@ STACK_EXPORT int StackGetStatus(StackStatus* out)
     fill->itemsUnstackable = r.unstackable;
     fill->ceiling = STACK_CEILING;
     fill->maxMultiplier = STACK_MAX_MULTIPLIER;
-    fill->liveRaise = sm::stacks::CanRaiseNow();
+    // StackApplyMultiplier raises nothing once a pick has read Enabled=0.
+    fill->liveRaise = sm::stacks::CanRaiseNow() && enabledNow;
     fill->biggest = r.biggest;
     fill->stackSize = r.stackSize;
     memcpy(out, fill, want);
