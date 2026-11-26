@@ -16,11 +16,13 @@ namespace sm::stacks
     {
         using Fn4 = uintptr_t(__fastcall*)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 
-        // ItemInfo on 1.0.0.3392, from the DLC catalog. Up to 1.0.0.2976 these
-        // were +0x18 and +0x00; the DLC build put _stringKey first and the small
-        // fields after it, and +0x18 now holds one-byte flags.
+        // ItemInfo from 1.0.0.3392 on, from the DLC catalog. Up to 1.0.0.2976 the
+        // limit was at +0x18 and the key at +0x00; the DLC build put the small
+        // fields before the limit, and +0x18 now holds one-byte flags.
         constexpr unsigned kMaxStackCount = 0x10;   // eight bytes
-        constexpr unsigned kKey = 0x08;             // four bytes, the item number
+        // The item number is four bytes at +0x08 up to 1.0.0.3732 and at +0x00
+        // from 1.0.0.3840, which dropped _stringKey from the record. ResolveStacks
+        // reads the offset from the reader's own code, into g_addr.keyOffset.
         // No stack is taken past this. Fat Stacks' largest option is 999999 and
         // the game carries it in this same field, so it is a number the game is
         // known to cope with. A stock limit already at or past it is left alone:
@@ -126,7 +128,7 @@ namespace sm::stacks
             if (stock <= 1) { ++g_unstackable; return; }
             if (stock >= kCeiling) { ++g_huge; return; }
             uint32_t key = 0;
-            if (!mem::Read32(rec + kKey, &key)) { ++g_unreadable; return; }
+            if (!mem::Read32(rec + g_addr.keyOffset, &key)) { ++g_unreadable; return; }
             for (size_t i = 0; i < _countof(kKeepStock); ++i)
                 if (key == kKeepStock[i]) { g_keepStockSeen[i] = stock; return; }
             // StackSize wins when set. It only ever raises: a stock limit at or

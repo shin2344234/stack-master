@@ -10,6 +10,7 @@ namespace sm::addr
     struct Stacks
     {
         uintptr_t itemInfoRead = 0;   // bool (stream, ItemInfo record)
+        unsigned keyOffset = 0;       // where the reader stores _key in the record (four bytes)
     };
 
     // False, with what is missing in the log.

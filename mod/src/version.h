@@ -8,12 +8,14 @@
 // 1.0.0.3424 (Steam 26317560), where the reader moved and nothing in it
 // changed, through 1.0.0.3576 (2.04.08), where Seth's run on 6 November 2026 found the
 // reader at +1719E80 and raised stacks, up to 1.0.0.3663 (2.05.00), where his
-// runs on 13 November 2026 found it at +1784110 with the record unchanged. The
+// runs on 13 November 2026 found it at +1784110 with the record unchanged, and
+// through 1.0.0.3840 (2.06.00), where the reader is at +17FCC80 and _key moved
+// from record+0x08 to +0x00 (checked on the exe file, not yet played). The
 // DLC build reordered the ItemInfo record, so builds up to 1.0.0.2976
 // (2.03.02) are no longer supported. Exe versions stand in until the patch
 // names are confirmed. It has to fit StackStatus::gameVersion, which is
-// char[16]: "1.0.0.3392-3663" is 15 characters.
-#define SM_GAME     "1.0.0.3392-3663"
+// char[16]: "1.0.0.3392-3840" is 15 characters.
+#define SM_GAME     "1.0.0.3392-3840"
 // Base name of the plugin's files next to it: StackMaster.asi, .ini, .log.
 #define SM_FILEBASE L"StackMaster"
 #define SM_INI      L"StackMaster.ini"

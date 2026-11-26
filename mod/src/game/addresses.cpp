@@ -82,13 +82,46 @@ namespace sm::addr
             LOG_ERR("[addr] ItemInfo reader: no function entry near +%llX", R(field));
             return false;
         }
-        // (stream in rcx kept in rdi, record in rdx kept in rsi), then _stringKey
-        // and _key as four bytes into record+0x08.
-        if (!mem::MatchAt(entry, "48 8B C4 48 89 58 08 48 89 68 20 56 57 41 56 48 83 EC 60 48 8B F2 48 8B F9"))
+        // (stream in rcx kept in rdi, record in rdx kept in rsi). Two entries are
+        // known and they differ in one byte, the stack slot the entry saves rbx in
+        // (+8 up to 1.0.0.3732, +0x10 from 1.0.0.3840). The record changed with
+        // it: up to 3732 _stringKey is read first and _key lands at record+0x08,
+        // from 3840 _stringKey is gone from the record and _key lands at +0x00,
+        // followed by _staticInfoIndex at +0x04. The store of _key is looked for
+        // between the entry and the _maxStackCount read, so the offset is read
+        // from the code and not assumed from the prologue.
+        struct Variant
         {
-            LOG_ERR("[addr] ItemInfo reader at +%llX does not start the way it did on 1.0.0.3392", R(entry));
+            const char* prologue;
+            const char* keyStore;   // mov eax,[rsp+N] / mov [rsi+off],eax
+            unsigned keyOffset;
+            const char* name;
+        };
+        static const Variant kVariants[] = {
+            {"48 8B C4 48 89 58 08 48 89 68 20 56 57 41 56 48 83 EC 60 48 8B F2 48 8B F9", "8B 84 24 88 00 00 00 89 46 08",
+             0x08, "1.0.0.3392 to 1.0.0.3732"},
+            {"48 8B C4 48 89 58 10 48 89 68 20 56 57 41 56 48 83 EC 60 48 8B F2 48 8B F9", "8B 84 24 80 00 00 00 89 06 48 8D 56 04",
+             0x00, "1.0.0.3840"},
+        };
+        const Variant* found = nullptr;
+        for (const Variant& v : kVariants)
+            if (mem::MatchAt(entry, v.prologue)) { found = &v; break; }
+        if (!found)
+        {
+            LOG_ERR("[addr] ItemInfo reader at +%llX does not start the way it did on 1.0.0.3392 or 1.0.0.3840", R(entry));
             return false;
         }
+        bool stored = false;
+        for (uintptr_t a = entry; a < field && !stored; ++a)
+            stored = mem::MatchAt(a, found->keyStore);
+        if (!stored)
+        {
+            LOG_ERR("[addr] ItemInfo reader at +%llX (%s layout) does not store _key at record+0x%X before the _maxStackCount read",
+                    R(entry), found->name, found->keyOffset);
+            return false;
+        }
+        s.keyOffset = found->keyOffset;
+        LOG("[addr] ItemInfo record layout of %s: _key at +0x%X", found->name, found->keyOffset);
         s.itemInfoRead = entry;
         LOG("[addr] ItemInfo reader +%llX", R(entry));
         return true;
