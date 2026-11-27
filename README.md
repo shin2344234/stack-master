@@ -4,9 +4,18 @@ A Crimson Desert plugin that raises how much of an item one inventory slot
 holds. Pick a multiplier and every item that already stacks holds that many
 times as much: at 5, a stack of 100 becomes 500 and a stack of 20 becomes 100.
 Or set one stack size, such as 9999, for everything that stacks.
-Built for Crimson Desert 2.05.00, exe 1.0.0.3663. Every DLC build from exe
-1.0.0.3392 on shares the item record it writes. Versions before the DLC need
-Stack Master 1.0.3.
+Built for Crimson Desert 2.06.00, exe 1.0.0.3840. It also runs on every DLC
+build back to exe 1.0.0.3392, 2.05.01 (1.0.0.3732) and 2.05.00 (1.0.0.3663)
+included. Versions before the DLC need Stack Master 1.0.3.
+
+New in 1.0.9: the mod runs on 2.06.00, the update of 26 November 2026. That
+build dropped one field from the item record, which moved the item number from
+byte 8 to byte 0. The plugin now reads the number where the code says it is, so
+one build covers both layouts. The 3840 build ran in the author's game on 26
+November and the log shows the plugin finding the item table reader, but
+nobody checked a stack size in that run. This release is not tested in play.
+On 2.05.01, 1.0.8 passed a check of its code against that exe, and 1.0.9
+changes nothing there.
 
 It changes no game file. The game reads its item table once while it starts, and
 the plugin raises each item's own limit as that happens, in memory. That is the
@@ -127,11 +136,11 @@ and writes no registry key and no game file. It is code signed by Seth Walker
 under Microsoft's identity-verified chain. Every line is here to read or build
 yourself.
 
-SHA-256 for 1.0.8:
+SHA-256 for 1.0.9:
 
-    f66f4b5c0f8ca44d68a1a574831abba2f4fdd4ca886b7d8eebcebeec0f0bf773  StackMaster-1.0.8-DMM.zip
-    4cefafa5f96cd4d286344cc9729387e54fd4b3e1255670dc55b353de07559d3c  StackMaster-1.0.8.zip
-    cdc4011b001cf797fabcda374c48875dc0c1dc41839664aa09b05973d09a279c  StackMaster.asi
+    10bcf59b3b1a7750fb77888adce4583a789e9577452f4ce2895889f4c0ee1652  StackMaster-1.0.9-DMM.zip
+    6c50933352efe011c2b459464474c56cf73cedfb86c19dbae47895b6991c4f2f  StackMaster-1.0.9.zip
+    215f7cd497d507fbe9493368ca7915851116618ef7b34a1a9cc4a512663fe64a  StackMaster.asi
 
 ## Discord and Patreon
 

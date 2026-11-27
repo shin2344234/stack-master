@@ -1,8 +1,15 @@
-Stack Master 1.0.8 for Crimson Desert 2.05.00, exe 1.0.0.3663
+Stack Master 1.0.9 for Crimson Desert 2.06.00, exe 1.0.0.3840
 ==============================================================
 
-Every DLC build from exe 1.0.0.3392 on shares the item record this plugin
-writes. Game versions before the DLC need Stack Master 1.0.3.
+1.0.9 runs on 2.06.00 and on every DLC build back to exe 1.0.0.3392, 2.05.01
+(1.0.0.3732) and 2.05.00 (1.0.0.3663) included. Game versions before the DLC
+need Stack Master 1.0.3.
+
+New in 1.0.9: 2.06.00 dropped one field from the item record and moved the item
+number from byte 8 to byte 0. The plugin reads the number where the code says it
+is, so it handles both layouts. The 3840 build ran in the author's game on 26
+November and the log shows the plugin finding the item table reader, but nobody
+checked a stack size in that run, so 1.0.9 is not tested in play.
 
 Raises how much of an item one inventory slot holds. Pick a multiplier and
 every item that already stacks holds that many times as much: at 5, a stack of
