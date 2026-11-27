@@ -123,11 +123,12 @@ exports the same names, so a caller finds whichever is installed.
 
 ## Antivirus
 
-VirusTotal flags 1.0.8 once on each file. DeepInstinct, which reports the word
-MALICIOUS and names nothing it found, flagged the plugin (1 of 71), the DMM
-archive (1 of 67) and the full archive (1 of 67), and no other scanner flagged
-any of the three. Releases 1.0.0 to 1.0.7 were clean on every file, so this is
-the first flag.
+VirusTotal flags 1.0.8 and 1.0.9 once on each file, and each time it is
+DeepInstinct, which reports the word MALICIOUS and names nothing it found.
+It flagged the 1.0.8 plugin (1 of 71), DMM archive (1 of 67) and full archive
+(1 of 67). For 1.0.9 the counts are 1 of 69, 1 of 65 and 1 of 67. No other
+scanner flagged any of those six files. Releases 1.0.0 to 1.0.7 were clean on
+every file.
 
 A model can take the shape of what the plugin does for a trainer. It is a DLL loaded into the game that searches the
 game's code for a byte pattern and writes a jump over one of its functions. It
